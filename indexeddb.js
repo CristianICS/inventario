@@ -4,7 +4,7 @@ var idb = {
     dbname: "inv-rows",
     init(){
         // Init database
-        const request = window.indexedDB.open(this.dbname, 1);
+        const request = window.indexedDB.open(this.dbname, 2);
 
         request.onerror = (event) => {
             console.error(`[IndexedDB request error]: ${event.target.errorCode}`);
@@ -20,16 +20,21 @@ var idb = {
         request.onupgradeneeded = (event) => {
             // Save the IDBDatabase interface
             this.db = event.target.result;
-
-            // Create an objectStore for this database
-            // It will store form rows as JSON objects
+            
+            // The DB is divided in two tables (Object Stores)
+            // Table to store form rows as JSON objects
             const objectStore = this.db.createObjectStore("rows", {
                 keyPath: "row_id"
             });
 
-          // Create an index to search rows by N. We may have duplicates
+          // Create an index to search rows by form id. We have duplicates
           // so we can't use a unique index.
-          objectStore.createIndex("N", "n", { unique: false });
+          objectStore.createIndex("inv_id", "inv_id", { unique: false });
+            
+          // Create table to store form metadata
+          const metadata_objectStore = this.db.createObjectStore("inv_metadata", {
+                keyPath: "inv_id"
+          });
         }
     },
     add(row){
