@@ -155,7 +155,11 @@ var sw = {
       if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register("/sw.js").then(()=>{
               this.available = true;
-              document.querySelector('.service-worker').style = "background-color: green;"
+              document.querySelector('.service-worker').style = "background-color: green;";
+          })
+          .catch((event)=>{
+              console.error(event);
+              document.querySelector('.service-worker').style = "background-color: red;";
           })
       }
   }
