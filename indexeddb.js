@@ -32,9 +32,9 @@ var idb = {
           objectStore.createIndex("N", "n", { unique: false });
         }
     },
-    add(data){
+    add(row){
         /*
-         * :data: List of rows as JSON
+         * :row: Row as JSON
          */
         const transaction = this.db.transaction([this.dbname], "readwrite");
         
@@ -49,32 +49,28 @@ var idb = {
         };
 
         const objectStore = transaction.objectStore("rows");
-        
-        data.forEach((row) => {
             
-            // Check if the row ID is already inside IndexedDB
-            const request_get = objectStore.get(row.row_id);
-            
-            request_get.onerror = (event) => {
-              // Handle errors!
-            };
-            
-            request_get.onsuccess = (event) => {
-               
-              // Put updated row back into the database.
-              // Note that the add() function requires that no object
-              // already be in the database with the same key.
-              const request_update = objectStore.put(row);
-                
-              request_update.onerror = (event) => {
-                console.error(`[IDBPut request error]: ${event.target.error}`);
-              };
-              request_update.onsuccess = (event) => {
-                console.log(`Row saved - key ${event.target.result}`);
-              };
-            };
-            
-        });
+        // Check if the row ID is already inside IndexedDB
+        const request_get = objectStore.get(row.row_id);
+
+        request_get.onerror = (event) => {
+          console.error(`[IDBGetTransaction error]: ${event.target.error}`);
+        };
+
+        request_get.onsuccess = (event) => {
+
+          // Put updated row back into the database.
+          // Note that the add() function requires that no object
+          // already be in the database with the same key.
+          const request_update = objectStore.put(row);
+
+          request_update.onerror = (event) => {
+            console.error(`[IDBPut request error]: ${event.target.error}`);
+          };
+          request_update.onsuccess = (event) => {
+            console.log(`Row saved - key ${event.target.result}`);
+          };
+        };
     }
 }
 
