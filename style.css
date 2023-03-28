@@ -1,0 +1,122 @@
+body
+{
+    background-color: rgb(43,43,43);
+    color: white;
+    font-family:  monospace, sans-serif;
+}
+/* Estilo de las cajas que componen el formulario */
+.box
+{
+    margin: auto;
+    width: 90%;
+}
+h1
+{
+    color:white;
+    font-size: 2em;
+    margin: 0;
+    text-align: center;
+}
+table
+{
+    border-collapse: separate;
+
+}
+.freeze-container
+{
+    max-height: 200px;
+    overflow: auto;
+}
+td, th
+{
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+/* freeze first row */
+th {
+    background-color: rgb(43,43,43);
+    top: 0;
+    position: sticky;
+    z-index: 100;
+}
+.metadata input
+{
+    max-width: 100%;
+}
+.especie
+{
+    margin: auto;
+    overflow-x: scroll;
+}
+input
+{
+    width: 90%;
+}
+textarea
+{
+    width: 98%;
+}
+select
+{
+    width: 100%;
+}
+.inv
+{
+    border: 1px solid white;
+    color: white;
+}
+.help
+{
+    border: 3px dash black;
+}
+/* More than 2cm style */
+.mt2cm
+{
+    color: rgb(188,189,220);
+}
+/* Less than 2cm style */
+.lt2cm
+{
+    color: orange;
+}
+.more
+{
+    margin: 25px auto;
+    text-align: center;
+}
+.plus
+{
+    display: inline-block;
+    margin: 0 auto;
+    width: 200px;
+    height: auto;
+}
+.selected
+{
+    background-color: aqua;
+}
+.status
+{
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin: 15px auto;
+    width: 90vw;
+}
+.indexeddb
+{
+    border-radius:50%;
+    background-color: white;
+    display: block;
+    height: 20px;
+    width: 20px;
+}
+.service-worker
+{
+    border-radius:50%;
+    background-color: white;
+    display: block;
+    height: 20px;
+    width: 20px;
+}
