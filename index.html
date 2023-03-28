@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<!-- https://web.dev/learn/pwa/ -->
+<!-- https://developer.android.com/develop/ui/views/layout/webapps -->
+<!-- https://developer.android.com/develop/ui/views/layout/webapps/load-local-content -->
+<!-- https://www.geeksforgeeks.org/build-an-android-app-with-html-css-and-javascript-in-android-studio/ -->
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+    <script src="listado_especies.js"></script>
+    <script src="sw.js"></script>
+    <script src="indexeddb.js"></script>
+</head>
+<body>
+
+<h1>
+    Inventario
+</h1>
+
+<div class="status">
+    <span class="indexeddb"></span>
+    <span class="service-worker"></span>
+</div>
+
+<!-- Metadatos del inventario -->
+<table class="inv box metadata">
+    <tbody>
+        <tr>
+            <td>
+                <label for="inv-date">Fecha</label><br>
+                <input type="date" id="inv-date" name="date">
+            </td>
+            <td>
+                <label for="inv-id">Parcela</label><br>
+                <input type="text" id="inv-id" name="id">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="inv-init">Punto inicio</label><br>
+                <input type="text" id="inv-init" name="punto-inicio">
+            </td>
+            <td>
+                <label for="inv-end">Punto final</label><br>
+                <input type="text" id="inv-end" name="punto-final">
+            </td>
+        </tr>
+        <tr>
+            <td colspan = 2>
+                <textarea placeholder="Comentarios"></textarea>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- Ayuda -->
+<div class="help box">
+    <p>
+        Lista de especies: <br><br> <select id="especies"></select>
+    </p>
+    <p class="lt2cm">Atributos en naranja: Individuos con DAP &lt; 2cm</p>
+    <p class="mt2cm">Atributos en morado: Individuos con DAP &gt; 2cm</p>
+</div>
+
+<!-- Formulario -->
+<div class="freeze-container">
+    <table class="inv box">
+        <tbody id="inventario">
+        <tr>
+            <th>Especie</th>
+            <th>N</th>
+            <th>D</th>
+            <th>di</th>
+            <th>dd</th>
+            <th>h</th>
+            <th class="lt2cm">DM<sup>*</sup></th>
+            <th class="lt2cm">Dm</th>
+            <th class="mt2cm">Rmay</th>
+            <th class="mt2cm">Rmen</th>
+            <th class="mt2cm">DBH</th>
+        </tr>
+        <tr data-rowid="1" class="inv-rows" onclick="selectRow(this)">
+            <td>
+                <span id="inv-esp-1" class="especie"></span>
+            </td>
+            <td>
+                <input type="text" id="inv-n-1" name="N" onchange="writeEsp(this)">
+            </td>
+            <td>
+                <input type="text" id="inv-d-1" name="D">
+            </td>
+            <td>
+                <input type="text" id="inv-di-1" name="di">
+            </td>
+            <td>
+                <input type="text" id="inv-dd-1" name="dd">
+            </td>
+            <td>
+                <input type="text" id="inv-h-1" name="h">
+            </td>
+            <td>
+                <input type="text" id="inv-dmay-1" name="DM">
+            </td>
+            <td>
+                <input type="text" id="inv-dmen-1" name="Dm">
+            </td>
+            <td>
+                <input type="text" id="inv-rmay-1" name="Rmay">
+            </td>
+            <td>
+                <input type="text" id="inv-rmen-1" name="Rmen">
+            </td>
+            <td>
+                <input type="text" id="inv-dbh-1" name="DBH">
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="more">
+    <img src="icons/plus.svg" onclick="addRow()">
+    <img src="icons/save.svg" onclick="saveForm()">
+    <img src="icons/tick.svg" onclick="removeRow(this)">
+</div>
+
+<script src="fun.js"></script>
+<script>
+    sw.init()
+</script>
+</body>
+</html>
