@@ -23,7 +23,7 @@ var idb = {
 
             // Create an objectStore for this database
             // It will store form rows as JSON objects
-            const objectStore = db.createObjectStore("rows", {
+            const objectStore = this.db.createObjectStore("rows", {
                 keyPath: "row_id"
             });
 
