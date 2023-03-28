@@ -36,7 +36,7 @@ var idb = {
         /*
          * :row: Row as JSON
          */
-        const transaction = this.db.transaction([this.dbname], "readwrite");
+        const transaction = this.db.transaction(['rows'], "readwrite");
         
         // Action to start when data is added to the database.
         transaction.oncomplete = (event) => {
