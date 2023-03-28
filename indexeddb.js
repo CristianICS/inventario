@@ -1,10 +1,10 @@
 // Reference: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
 var idb = {
     db: null,
-    dbname: "inv-rows",
+    dbname: "inventario",
     init(){
         // Init database
-        const request = window.indexedDB.open(this.dbname, 2);
+        const request = window.indexedDB.open(this.dbname, 1);
 
         request.onerror = (event) => {
             console.error(`[IndexedDB request error]: ${event.target.errorCode}`);
