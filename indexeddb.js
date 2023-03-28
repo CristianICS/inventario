@@ -1,47 +1,82 @@
 // Reference: https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB
-let db;
+var idb = {
+    db: null,
+    dbname: "inv-rows",
+    init(){
+        // Init database
+        const request = window.indexedDB.open(this.dbname, 1);
 
-// Init database
-const request = window.indexedDB.open("testdb", 1);
+        request.onerror = (event) => {
+            console.error(`[IndexedDB request error]: ${event.target.errorCode}`);
+            document.querySelector(".indexeddb").style = "background-color: red;";
+        };
+        request.onsuccess = (event) => {
+            document.querySelector(".indexeddb").style = "background-color: green;";
+            //   Save DB instance
+            this.db = event.target.result;
+        };
 
-request.onerror = (event) => {
-    consoloe.error(`[IndexedDB request error]: ${event.target.errorCode}`);
-    document.querySelector(".indexeddb").style = "background-color: red;";
-};
-request.onsuccess = (event) => {
-    document.querySelector(".indexeddb").style = "background-color: green;";
-    //   Save DB instance
-    db = event.target.result;
-};
+        // IMPORTANT: This event is only implemented in recent browsers
+        request.onupgradeneeded = (event) => {
+            // Save the IDBDatabase interface
+            this.db = event.target.result;
 
-// IMPORTANT: This event is only implemented in recent browsers
-request.onupgradeneeded = (event) => {
-    // Save the IDBDatabase interface
-    db = event.target.result;
+            // Create an objectStore for this database
+            // It will store form rows as JSON objects
+            const objectStore = db.createObjectStore("rows", {
+                keyPath: "row_id"
+            });
 
-    // Create an objectStore for this database
-    // It will store form rows as JSON objects
-    const objectStore = db.createObjectStore("rows", {
-        keyPath: "row_id"
-    });
+          // Create an index to search rows by N. We may have duplicates
+          // so we can't use a unique index.
+          objectStore.createIndex("N", "n", { unique: false });
+        }
+    },
+    add(data){
+        /*
+         * :data: List of rows as JSON
+         */
+        const transaction = this.db.transaction([this.dbname], "readwrite");
+        
+        // Action to start when data is added to the database.
+        transaction.oncomplete = (event) => {
+            alert("Data is saved!");
+        };
 
-  // Create an index to search customers by name. We may have duplicates
-  // so we can't use a unique index.
-  objectStore.createIndex("name", "name", { unique: false });
+        transaction.onerror = (event) => {
+          console.error(`[IDBTransaction error]: ${event.target.error}`);
+          alert("Uups, something went wrong. Try it again!");
+        };
 
-  // Create an index to search customers by email. We want to ensure that
-  // no two customers have the same email, so use a unique index.
-  objectStore.createIndex("email", "email", { unique: true });
+        const objectStore = transaction.objectStore("rows");
+        
+        data.forEach((row) => {
+            
+            // Check if the row ID is already inside IndexedDB
+            const request_get = objectStore.get(row.row_id);
+            
+            request_get.onerror = (event) => {
+              // Handle errors!
+            };
+            
+            request_get.onsuccess = (event) => {
+               
+              // Put updated row back into the database.
+              // Note that the add() function requires that no object
+              // already be in the database with the same key.
+              const request_update = objectStore.put(row);
+                
+              request_update.onerror = (event) => {
+                console.error(`[IDBPut request error]: ${event.target.error}`);
+              };
+              request_update.onsuccess = (event) => {
+                console.log(`Row saved - key ${event.target.result}`);
+              };
+            };
+            
+        });
+    }
+}
 
-  // Use transaction oncomplete to make sure the objectStore creation is
-  // finished before adding data into it.
-  objectStore.transaction.oncomplete = (event) => {
-    // Store values in the newly created objectStore.
-    const customerObjectStore = db
-      .transaction("customers", "readwrite")
-      .objectStore("customers");
-    customerData.forEach((customer) => {
-      customerObjectStore.add(customer);
-    });
-  };
-};
+// Init DB
+idb.init();
