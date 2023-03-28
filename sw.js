@@ -22,7 +22,6 @@ const PRECACHE_URLS = [
   'index.html',
   'fun.js',
   'listado_especies.js',
-  './', // Alias for index.html
   'style.css',
   'icons/plus.svg',
   'icons/tick.svg'
@@ -34,6 +33,7 @@ self.addEventListener('install', event => {
     caches.open(PRECACHE)
       .then(cache => cache.addAll(PRECACHE_URLS))
       .then(self.skipWaiting())
+      .catch((event)=>{console.error(event)})
   );
 });
 
