@@ -114,13 +114,13 @@ var saveForm = function(){
    */
 
   let html_rows = document.querySelectorAll('.inv-rows');
-  let row_data = [];
+  
   for(let i = 0; i < html_rows.length; i ++){
     let rowid = html_rows[i].dataset.rowid;
     let json_data = collectRowData(rowid);
-    row_data.push(json_data)
+    // Add data into the IndexedDB
+    idb.add(json_data);
   }
-  idb.add(row_data);
 }
 
 class Row {
