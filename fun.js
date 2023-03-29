@@ -105,7 +105,7 @@ var collectMetadata = function(){
  * @returns Row data in JSON
  */
 var collectRowData = function(rowid){
-
+  
   let n = document.getElementById(`inv-n-${rowid}`).value;
   let d = document.getElementById(`inv-d-${rowid}`).value;
   let di = document.getElementById(`inv-di-${rowid}`).value;
@@ -117,7 +117,7 @@ var collectRowData = function(rowid){
   let rmen = document.getElementById(`inv-rmen-${rowid}`).value;
   let dbh = document.getElementById(`inv-dbh-${rowid}`).value;
   let inv_id = document.getElementById('inv-id').value.toUpperCase();
-  
+
   return(
     {
       row_id: Number(rowid),
@@ -237,18 +237,19 @@ var downloadForm = function(){
 }
 
 class Row {
+
   constructor(rn) { // Row number
     this.especie = '<span onclick="selectRow()" id="inv-esp-' + rn + '" class="especie">';
-    this.N = '<input type="text" id="inv-n-' + rn + '" name="N" onchange="writeEsp(this)">';
-    this.D = '<input type="text" id="inv-d-' + rn + '" name="D">';
-    this.di = '<input type="text" id="inv-di-' + rn + '" name="di">';
-    this.dd = '<input type="text" id="inv-dd-' + rn + '" name="dd">';
-    this.h = '<input type="text" id="inv-h-' + rn + '" name="h">';
-    this.dmay = '<input type="text" id="inv-dmay-' + rn + '" name="DM">';
-    this.dmen = '<input type="text" id="inv-dmen-' + rn + '" name="Dm">';
-    this.rmay = '<input type="text" id="inv-rmay-' + rn + '" name="rmay">';
-    this.rmen = '<input type="text" id="inv-rmen-' + rn + '" name="rmen">';
-    this.dbh = '<input type="text" id="inv-dbh-' + rn + '" name="dbh">';
+    this.N = '<input type="number" id="inv-n-' + rn + '" name="N" onchange="writeEsp(this)">';
+    this.D = '<input type="number" id="inv-d-' + rn + '" name="D">';
+    this.di = '<input type="number" id="inv-di-' + rn + '" name="di">';
+    this.dd = '<input type="number" id="inv-dd-' + rn + '" name="dd">';
+    this.h = '<input type="number" id="inv-h-' + rn + '" name="h">';
+    this.dmay = '<input type="number" id="inv-dmay-' + rn + '" name="DM">';
+    this.dmen = '<input type="number" id="inv-dmen-' + rn + '" name="Dm">';
+    this.rmay = '<input type="number" id="inv-rmay-' + rn + '" name="rmay">';
+    this.rmen = '<input type="number" id="inv-rmen-' + rn + '" name="rmen">';
+    this.dbh = '<input type="number" id="inv-dbh-' + rn + '" name="dbh">';
   }
 
   createHTML(){
@@ -295,6 +296,28 @@ var clearSearchBar = function(){
   let x = document.querySelector('#list-holder');
   x.innerHTML = "";
 }
+
+document.querySelector('body').addEventListener('keydown', function(e) {
+  
+  let node = e.target;
+
+  if (e.key === "Enter" && node.tagName == "INPUT") {
+
+    var inputs = document.querySelectorAll('input');
+    for(let i = 0; i < inputs.length; i++){
+      let input = inputs[i];
+      if (input.id == node.id){
+        // Focus the next input
+        let next_i = i + 1;
+
+        if (next_i < inputs.length){
+          inputs[i+1].focus();
+        }
+      }
+    }
+  }
+
+});
 
 var sw = {
   available: false,

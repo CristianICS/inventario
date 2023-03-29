@@ -107,7 +107,9 @@
                 <span id="inv-esp-1" class="especie"></span>
             </td>
             <td>
-                <input type="number" id="inv-n-1" name="N" onchange="writeEsp(this)">
+                <!-- Shows numeric keybord in iOS devices
+                https://developer.apple.com/documentation/uikit/uiresponder/1621578-keyboardframeenduserinfokey -->
+                <input type="number" id="inv-n-1" name="N" onchange="writeEsp(this)"> 
             </td>
             <td>
                 <input type="number" id="inv-d-1" name="D">
