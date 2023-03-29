@@ -76,6 +76,11 @@ var removeRow = function(){
   }
 }
 
+/**
+ * Retrieve info from metadata table
+ * ================================
+ * @returns Metadata in JSON
+ */
 var collectMetadata = function(){
   let id = document.getElementById('inv-id').value;
   let date = document.getElementById('inv-date').value;
@@ -92,6 +97,13 @@ var collectMetadata = function(){
   })
 }
 
+/**
+ * Get all data from the form
+ * ==========================
+ * 
+ * @param {Text} rowid The row id from which the data must be retrieved 
+ * @returns Row data in JSON
+ */
 var collectRowData = function(rowid){
 
   let n = document.getElementById(`inv-n-${rowid}`).value;
@@ -124,27 +136,104 @@ var collectRowData = function(rowid){
   )
 }
 
-var saveForm = function(){
-  /*
+  /**
    * Upload data to IndexedDB
+   * ==========================
    * 1. Metadata
    * 2. Inv rows
-   * 
    */
+var saveForm = function(){
 
   // 1. Metadata
   let metadata = collectMetadata();
-  idb.add(metadata, 'inv_metadata', 'inv_id')
+  idb.addData(metadata, 'inv_metadata', 'inv_id')
 
-
+  // 2. Rows
   let html_rows = document.querySelectorAll('.inv-rows');
   
   for(let i = 0; i < html_rows.length; i ++){
     let rowid = html_rows[i].dataset.rowid;
     let json_data = collectRowData(rowid);
     // Add data into the IndexedDB
-    idb.add(json_data, 'rows', 'row_id');
+    idb.addData(json_data, 'rows', 'row_id');
   }
+}
+
+/**
+ * Transform Array of JSON rows into csv like array
+ * ===============================================
+ * Example data:
+ * [{row1 in json}, {row2 in json}]
+ * 
+ * Example output:
+ * [[colnames sep by colons], [row1 values], [row2 values] ...]
+ * 
+ * @param {Array} json 
+ */
+var jsonToArray = function(json){
+  // Get the colnames
+  // IMPORTANT: All the keys stored in the json inside the array MUST BE EQUALS
+  let array = [Object.keys(json[0])];
+  // Get rownames
+  json.forEach((row) => {
+    let values = Object.values(row)
+    array.push(values);
+  });
+  
+  return(array)
+}
+
+/**
+ * Save form data/metadata in two CSVs
+ * ===================================
+ *
+ * Note: All IDB function reutrn the data in a callback, and
+ * we retrieve that with a callback function.
+ * 
+ */
+var downloadForm = function(){
+  // 1. EXPORT METADATA
+  let form_id = document.getElementById("inv-id").value.toUpperCase();
+  idb.getAllData("inv_metadata", form_id, false, function(result){
+    if(result.length > 0){
+
+      // Transform data into an array
+      let rows = jsonToArray(result);
+      // Create csv (https://stackoverflow.com/a/14966131)
+      let csvContent = "data:text/csv;charset=utf-8," 
+      + rows.map(e => e.join(",")).join("\n");
+
+      // Export with custom name
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `${form_id}_metadata.csv`);
+      document.body.appendChild(link); // Required for FF
+
+      link.click(); // This will download the data
+
+      // 2. EXPORT FORM ROWS
+      idb.getAllData("rows", form_id, 'inv_id', function(result){
+        console.log(result)
+        if(result.length > 0){
+          // Transform data into an array
+          let rows = jsonToArray(result);
+          // Create csv (https://stackoverflow.com/a/14966131)
+          let csvContent = "data:text/csv;charset=utf-8," 
+          + rows.map(e => e.join(",")).join("\n");
+
+          // Export with custom name
+          var encodedUri = encodeURI(csvContent);
+          var link = document.createElement("a");
+          link.setAttribute("href", encodedUri);
+          link.setAttribute("download", `${form_id}.csv`);
+          document.body.appendChild(link); // Required for FF
+
+          link.click(); // This will download the data
+        }
+      })
+    }
+  });
 }
 
 class Row {
@@ -174,8 +263,11 @@ class Row {
 
 var sw = {
   available: false,
+  /**
+   * Init Service Worker
+   * ===================
+   */
   init(){
-      // Init Service Worker
       if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register("/sw.js").then(()=>{
               this.available = true;

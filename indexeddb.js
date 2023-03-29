@@ -49,7 +49,7 @@ var idb = {
      * @param {Text} key: The data's id to start a IDB get transaction
      * 
      */
-    add(data, os, key){
+    addData(data, os, key){
 
         const transaction = this.db.transaction([os], "readwrite");
         
@@ -86,6 +86,41 @@ var idb = {
             console.log(`Row saved - key ${event.target.result}`);
           };
         };
+    },
+    /**
+     * Get all the data in IDB by key
+     * =================================
+     * 
+     * @param {Text} os Object Store to get from IDB
+     * @param {Text} key ID which all retrieved json data must contain
+     * @param {Text | Boolean} index If it is not false, must be the 
+     * index name when key value is stored
+     * @param {Function} callback Function to manage the result
+     */
+    getAllData(os, key, index = false, callback){
+      const transaction = this.db.transaction([os]);
+
+      transaction.onerror = (event) => {
+        console.error(`[IDBTransaction error]: ${event.target.error}`);
+        alert("Uups, something went wrong. Try it again!");
+      };
+
+      const objectStore = transaction.objectStore(os);
+
+      if(!index){
+        var request = objectStore.getAll(key);
+      } else {
+        const idbIndex = objectStore.index(index);
+        var request = idbIndex.getAll(key);
+      }
+
+      request.onerror = (event) => {
+        console.error(`[IDBPut request error]: ${event.target.error}`);
+      }
+
+      request.onsuccess = (event) => {
+        callback(event.target.result);
+      }
     }
 }
 
