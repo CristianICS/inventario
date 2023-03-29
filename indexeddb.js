@@ -23,7 +23,7 @@ var idb = {
         request.onupgradeneeded = (event) => {
             // Save the IDBDatabase interface
             this.db = event.target.result;
-            
+
             // The DB is divided in two tables (Object Stores)
             // Table to store form rows as JSON objects
             const objectStore = this.db.createObjectStore("rows", {
@@ -33,7 +33,7 @@ var idb = {
           // Create an index to search rows by form id. We have duplicates
           // so we can't use a unique index.
           objectStore.createIndex("inv_id", "inv_id", { unique: false });
-            
+
           // Create table to store form metadata
           const metadata_objectStore = this.db.createObjectStore("inv_metadata", {
                 keyPath: "inv_id"
@@ -61,22 +61,22 @@ var idb = {
         console.error(`IBD test fails: ${event.target.error}`);
       };
     },
-    
+
     /**
      * Add data inside Indexed DB
      * ==============================
      * Push data into IndexedDB (i.e. with replace if data's key match
      * with an existing DB key)
-     * 
-     * @param {JSON} data 
+     *
+     * @param {JSON} data
      * @param {Text} os: Object Store's name where data is loaded
      * @param {Text} key: The data's id to start a IDB get transaction
-     * 
+     *
      */
     addData(data, os, key){
 
         const transaction = this.db.transaction([os], "readwrite");
-        
+
         // Action to start when data is added to the database.
         transaction.oncomplete = (event) => {
             alert("Data is saved!");
@@ -88,7 +88,7 @@ var idb = {
         };
 
         const objectStore = transaction.objectStore(os);
-            
+
         // Check if data is already inside IndexedDB
         const request_get = objectStore.get(data[key]);
 
@@ -114,10 +114,10 @@ var idb = {
     /**
      * Get all the data in IDB by key
      * =================================
-     * 
+     *
      * @param {Text} os Object Store to get from IDB
      * @param {Text} key ID which all retrieved json data must contain
-     * @param {Text | Boolean} index If it is not false, must be the 
+     * @param {Text | Boolean} index If it is not false, must be the
      * index name when key value is stored
      * @param {Function} callback Function to manage the result
      */
@@ -147,6 +147,3 @@ var idb = {
       }
     }
 }
-
-// Init DB
-idb.init();

@@ -6,9 +6,10 @@
 <html>
 <head>
     <link rel="stylesheet" href="style.css">
-    <script src="listado_especies.js"></script>
-    <script src="sw.js"></script>
     <script src="indexeddb.js"></script>
+    <script src="listado_especies.js"></script>
+    <script src="fun.js"></script>
+    <script src="sw.js"></script>
 </head>
 <body>
 
@@ -21,8 +22,8 @@
 </h1>
 
 <div class="status">
-    
-    
+
+
 </div>
 
 <!-- Metadatos del inventario -->
@@ -80,7 +81,7 @@
             <img src="icons/cross.svg" onclick="clearSearchBar()">
         </p>
         <ul id="list-holder" style="max-height: 100px; overflow: auto;">
-        
+
         </ul>
     </div>
     <table style="border-collapse: collapse; margin-bottom: 20px; width: 100%;">
@@ -124,7 +125,7 @@
             <td>
                 <!-- Shows numeric keybord in iOS devices
                 https://developer.apple.com/documentation/uikit/uiresponder/1621578-keyboardframeenduserinfokey -->
-                <input type="number" id="inv-n-1" name="N" onchange="writeEsp(this)"> 
+                <input type="number" id="inv-n-1" name="N" onchange="writeEsp(this)">
             </td>
             <td>
                 <input type="number" id="inv-d-1" name="D">
@@ -164,9 +165,34 @@
     <img src="icons/plus.svg" onclick="addRow()">
 </div>
 
-<script src="fun.js"></script>
 <script>
+    // Init Service Worker
     sw.init()
+    // Start IndexedDB
+    idb.init();
+
+    // Swith "enter" behavior on input tags by "tab"
+    document.querySelector('body').addEventListener('keydown', function(e) {
+
+        let node = e.target;
+
+        if (e.key === "Enter" && node.tagName == "INPUT") {
+
+        var inputs = document.querySelectorAll('input');
+        for(let i = 0; i < inputs.length; i++){
+        let input = inputs[i];
+        if (input.id == node.id){
+            // Focus the next input
+            let next_i = i + 1;
+
+            if (next_i < inputs.length){
+            inputs[i+1].focus();
+            }
+        }
+        }
+    }
+
+});
 </script>
 </body>
 </html>

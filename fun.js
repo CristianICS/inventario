@@ -100,12 +100,12 @@ var collectMetadata = function(){
 /**
  * Get all data from the form
  * ==========================
- * 
- * @param {Text} rowid The row id from which the data must be retrieved 
+ *
+ * @param {Text} rowid The row id from which the data must be retrieved
  * @returns Row data in JSON
  */
 var collectRowData = function(rowid){
-  
+
   let n = document.getElementById(`inv-n-${rowid}`).value;
   let d = document.getElementById(`inv-d-${rowid}`).value;
   let di = document.getElementById(`inv-di-${rowid}`).value;
@@ -150,7 +150,7 @@ var saveForm = function(){
 
   // 2. Rows
   let html_rows = document.querySelectorAll('.inv-rows');
-  
+
   for(let i = 0; i < html_rows.length; i ++){
     let rowid = html_rows[i].dataset.rowid;
     let json_data = collectRowData(rowid);
@@ -164,11 +164,11 @@ var saveForm = function(){
  * ===============================================
  * Example data:
  * [{row1 in json}, {row2 in json}]
- * 
+ *
  * Example output:
  * [[colnames sep by colons], [row1 values], [row2 values] ...]
- * 
- * @param {Array} json 
+ *
+ * @param {Array} json
  */
 var jsonToArray = function(json){
   // Get the colnames
@@ -179,7 +179,7 @@ var jsonToArray = function(json){
     let values = Object.values(row)
     array.push(values);
   });
-  
+
   return(array)
 }
 
@@ -189,7 +189,7 @@ var jsonToArray = function(json){
  *
  * Note: All IDB function reutrn the data in a callback, and
  * we retrieve that with a callback function.
- * 
+ *
  */
 var downloadForm = function(){
   // 1. EXPORT METADATA
@@ -200,7 +200,7 @@ var downloadForm = function(){
       // Transform data into an array
       let rows = jsonToArray(result);
       // Create csv (https://stackoverflow.com/a/14966131)
-      let csvContent = "data:text/csv;charset=utf-8," 
+      let csvContent = "data:text/csv;charset=utf-8,"
       + rows.map(e => e.join(",")).join("\n");
 
       // Export with custom name
@@ -219,7 +219,7 @@ var downloadForm = function(){
           // Transform data into an array
           let rows = jsonToArray(result);
           // Create csv (https://stackoverflow.com/a/14966131)
-          let csvContent = "data:text/csv;charset=utf-8," 
+          let csvContent = "data:text/csv;charset=utf-8,"
           + rows.map(e => e.join(",")).join("\n");
 
           // Export with custom name
@@ -297,28 +297,6 @@ var clearSearchBar = function(){
   x.innerHTML = "";
 }
 
-document.querySelector('body').addEventListener('keydown', function(e) {
-  
-  let node = e.target;
-
-  if (e.key === "Enter" && node.tagName == "INPUT") {
-
-    var inputs = document.querySelectorAll('input');
-    for(let i = 0; i < inputs.length; i++){
-      let input = inputs[i];
-      if (input.id == node.id){
-        // Focus the next input
-        let next_i = i + 1;
-
-        if (next_i < inputs.length){
-          inputs[i+1].focus();
-        }
-      }
-    }
-  }
-
-});
-
 var sw = {
   available: false,
   /**
@@ -326,15 +304,15 @@ var sw = {
    * ===================
    */
   init(){
-      if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register("/sw.js").then(()=>{
-              this.available = true;
-              document.querySelector('.service-worker').classList.add("success");
-          })
-          .catch((event)=>{
-              console.error(event);
-              document.querySelector('.service-worker').classList.add("error");
-          })
-      }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register("sw.js").then(()=>{
+          this.available = true;
+          document.querySelector('.service-worker').classList.add("success");
+      })
+      .catch((event)=>{
+          console.error(event);
+          document.querySelector('.service-worker').classList.add("error");
+      })
+    }
   }
 }

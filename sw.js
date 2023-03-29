@@ -21,10 +21,14 @@ const RUNTIME = 'runtime';
 const PRECACHE_URLS = [
   'index.html',
   'fun.js',
+  'indexeddb.js',
   'listado_especies.js',
   'style.css',
   'icons/plus.svg',
-  'icons/tick.svg'
+  'icons/tick.svg',
+  'icons/download.svg',
+  'icons/cross.svg',
+  'icons/save.svg',
 ];
 
 // The install handler takes care of precaching the resources we always need.
