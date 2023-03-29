@@ -8,10 +8,10 @@ var idb = {
 
         request.onerror = (event) => {
             console.error(`[IndexedDB request error]: ${event.target.errorCode}`);
-            document.querySelector(".indexeddb").style = "background-color: red;";
+            document.querySelector(".indexeddb").classList.add("error");
         };
         request.onsuccess = (event) => {
-            document.querySelector(".indexeddb").style = "background-color: green;";
+            document.querySelector(".indexeddb").classList.add("success");
             // Save DB instance
             this.db = event.target.result;
 
@@ -49,7 +49,7 @@ var idb = {
       const objectStore = transaction.objectStore("rows");
 
       transaction.onerror = (event) => {
-        document.querySelector(".indexeddb").style = "background-color: red;";
+        document.querySelector(".indexeddb").classList.add("error");
         console.error(`IBD test fails: ${event.target.error}`);
       };
 

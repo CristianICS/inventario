@@ -329,11 +329,11 @@ var sw = {
       if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register("/sw.js").then(()=>{
               this.available = true;
-              document.querySelector('.service-worker').style = "background-color: green;";
+              document.querySelector('.service-worker').classList.add("success");
           })
           .catch((event)=>{
               console.error(event);
-              document.querySelector('.service-worker').style = "background-color: red;";
+              document.querySelector('.service-worker').classList.add("error");
           })
       }
   }
