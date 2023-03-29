@@ -12,8 +12,11 @@ var idb = {
         };
         request.onsuccess = (event) => {
             document.querySelector(".indexeddb").style = "background-color: green;";
-            //   Save DB instance
+            // Save DB instance
             this.db = event.target.result;
+
+            // Test if ObjectStore are already created
+            this.testIDB();
         };
 
         // IMPORTANT: This event is only implemented in recent browsers
@@ -36,6 +39,27 @@ var idb = {
                 keyPath: "inv_id"
           });
         }
+    },
+
+    /**
+     * Make a test query to test that IDB is correctly open
+     */
+    testIDB(){
+      const transaction = this.db.transaction(["rows"], "readonly");
+      const objectStore = transaction.objectStore("rows");
+
+      transaction.onerror = (event) => {
+        document.querySelector(".indexeddb").style = "background-color: red;";
+        console.error(`IBD test fails: ${event.target.error}`);
+      };
+
+      const countRequest = objectStore.count();
+      countRequest.onsuccess = () => {
+        console.log('IBD test success');
+      };
+      countRequest.onerror = (event) => {
+        console.error(`IBD test fails: ${event.target.error}`);
+      };
     },
     
     /**
