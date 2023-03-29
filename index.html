@@ -12,6 +12,10 @@
 </head>
 <body>
 
+<div class="download" onclick="downloadForm();">
+    <img src="icons/download.svg">
+</div>
+
 <h1>
     Inventario
 </h1>
@@ -57,8 +61,21 @@
     <p>
         Lista de especies: <br><br> <select id="especies"></select>
     </p>
-    <p class="lt2cm">Atributos en naranja: Individuos con DAP &lt; 2cm</p>
-    <p class="mt2cm">Atributos en morado: Individuos con DAP &gt; 2cm</p>
+    <table style="border-collapse: collapse; margin-bottom: 20px; width: 100%;">
+        <tr style="font-size: 0.8em;">
+            <td>
+                <span class="flex-td">
+                    <span class="help-2cm-legend lt2cm"></span> DAP &lt; 2cm
+                </span>
+            </td>
+            <td>
+                <span class="flex-td">
+                    <span class="help-2cm-legend mt2cm"></span> DAP &gt; 2cm
+                </span>
+            </td>
+            <td>DAP = Diametro a la altura del pecho</td>
+        </tr>
+    </table>
 </div>
 
 <!-- Formulario -->
@@ -72,11 +89,11 @@
             <th>di</th>
             <th>dd</th>
             <th>h</th>
-            <th class="lt2cm">DM<sup>*</sup></th>
-            <th class="lt2cm">Dm</th>
-            <th class="mt2cm">Rmay</th>
-            <th class="mt2cm">Rmen</th>
-            <th class="mt2cm">DBH</th>
+            <th class="lt2cm-header">DM</th>
+            <th class="lt2cm-header">Dm</th>
+            <th class="mt2cm-header">Rmay</th>
+            <th class="mt2cm-header">Rmen</th>
+            <th class="mt2cm-header">DBH</th>
         </tr>
         <tr data-rowid="1" class="inv-rows" onclick="selectRow(this)">
             <td>
@@ -97,19 +114,19 @@
             <td>
                 <input type="text" id="inv-h-1" name="h">
             </td>
-            <td>
+            <td class="lt2cm">
                 <input type="text" id="inv-dmay-1" name="DM">
             </td>
-            <td>
+            <td class="lt2cm">
                 <input type="text" id="inv-dmen-1" name="Dm">
             </td>
-            <td>
+            <td class="mt2cm">
                 <input type="text" id="inv-rmay-1" name="Rmay">
             </td>
-            <td>
+            <td class="mt2cm">
                 <input type="text" id="inv-rmen-1" name="Rmen">
             </td>
-            <td>
+            <td class="mt2cm">
                 <input type="text" id="inv-dbh-1" name="DBH">
             </td>
         </tr>
@@ -118,9 +135,9 @@
 </div>
 
 <div class="more">
-    <img src="icons/plus.svg" onclick="addRow()">
-    <img src="icons/save.svg" onclick="saveForm()">
     <img src="icons/tick.svg" onclick="removeRow(this)">
+    <img src="icons/save.svg" onclick="saveForm()">
+    <img src="icons/plus.svg" onclick="addRow()">
 </div>
 
 <script src="fun.js"></script>

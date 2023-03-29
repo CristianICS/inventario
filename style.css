@@ -3,6 +3,7 @@ body
     background-color: rgb(43,43,43);
     color: white;
     font-family:  monospace, sans-serif;
+    margin: 0;
 }
 /* Estilo de las cajas que componen el formulario */
 .box
@@ -70,15 +71,37 @@ select
 {
     border: 3px dash black;
 }
-/* More than 2cm style */
+/* More than 2cm style (for column name) - No transparency */
+.mt2cm-header
+{
+    background-color: #4e4e4eff;
+}
+.lt2cm-header
+{
+    background-color: #6b6b6bff;
+}
+/* More than 2cm style (for rows) */
 .mt2cm
 {
-    color: rgb(188,189,220);
+    background-color: rgba(160, 160, 160, 0.3);
 }
-/* Less than 2cm style */
+/* Less than 2cm style (for rows) */
 .lt2cm
 {
-    color: orange;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+.help-2cm-legend
+{
+    border-radius: 10%;
+    display:inline-block;
+    height: 20px;
+    width: 20px;
+}
+.flex-td
+{
+    display:flex;
+    align-content: center;
+    gap: 10px;
 }
 .more
 {
@@ -119,4 +142,13 @@ select
     display: block;
     height: 20px;
     width: 20px;
+}
+.download
+{
+    float: right;
+}
+.download img
+{
+    width: 50px;
+    height: auto;
 }

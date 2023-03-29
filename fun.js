@@ -255,7 +255,14 @@ class Row {
     let new_r = [];
     let elements = Object.values(this);
     for(var i = 0; i < elements.length; i++){
-      new_r.push('<td>' + elements[i] + '</td>');
+      // Print 5 last column with background color
+      if (i >= 6 & i < 8){
+        new_r.push('<td class="lt2cm">' + elements[i] + '</td>');
+      } else if (i >= 8) {
+        new_r.push('<td class="mt2cm">' + elements[i] + '</td>');
+      } else {
+        new_r.push('<td>' + elements[i] + '</td>');
+      }
     }
     return(new_r.join(""));
   }
