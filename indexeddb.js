@@ -37,11 +37,21 @@ var idb = {
           });
         }
     },
-    add(row){
-        /*
-         * :row: Row as JSON
-         */
-        const transaction = this.db.transaction(['rows'], "readwrite");
+    
+    /**
+     * Add data inside Indexed DB
+     * ==============================
+     * Push data into IndexedDB (i.e. with replace if data's key match
+     * with an existing DB key)
+     * 
+     * @param {JSON} data 
+     * @param {Text} os: Object Store's name where data is loaded
+     * @param {Text} key: The data's id to start a IDB get transaction
+     * 
+     */
+    add(data, os, key){
+
+        const transaction = this.db.transaction([os], "readwrite");
         
         // Action to start when data is added to the database.
         transaction.oncomplete = (event) => {
@@ -53,10 +63,10 @@ var idb = {
           alert("Uups, something went wrong. Try it again!");
         };
 
-        const objectStore = transaction.objectStore("rows");
+        const objectStore = transaction.objectStore(os);
             
-        // Check if the row ID is already inside IndexedDB
-        const request_get = objectStore.get(row.row_id);
+        // Check if data is already inside IndexedDB
+        const request_get = objectStore.get(data[key]);
 
         request_get.onerror = (event) => {
           console.error(`[IDBGetTransaction error]: ${event.target.error}`);
@@ -64,10 +74,10 @@ var idb = {
 
         request_get.onsuccess = (event) => {
 
-          // Put updated row back into the database.
+          // Put updated data back into the database.
           // Note that the add() function requires that no object
           // already be in the database with the same key.
-          const request_update = objectStore.put(row);
+          const request_update = objectStore.put(data);
 
           request_update.onerror = (event) => {
             console.error(`[IDBPut request error]: ${event.target.error}`);

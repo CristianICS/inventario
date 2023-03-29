@@ -76,7 +76,22 @@ var removeRow = function(){
   }
 }
 
-// Collect row data
+var collectMetadata = function(){
+  let id = document.getElementById('inv-id').value;
+  let date = document.getElementById('inv-date').value;
+  let pinit = document.getElementById('inv-init').value;
+  let pend = document.getElementById('inv-end').value;
+  let cmts = document.getElementById('inv-comments').value;
+
+  return({
+    inv_id: id.toUpperCase(),
+    date: date,
+    pinit: Number(pinit),
+    pend: Number(pend),
+    comments: cmts
+  })
+}
+
 var collectRowData = function(rowid){
 
   let n = document.getElementById(`inv-n-${rowid}`).value;
@@ -89,10 +104,12 @@ var collectRowData = function(rowid){
   let rmay = document.getElementById(`inv-rmay-${rowid}`).value;
   let rmen = document.getElementById(`inv-rmen-${rowid}`).value;
   let dbh = document.getElementById(`inv-dbh-${rowid}`).value;
+  let inv_id = document.getElementById('inv-id').value.toUpperCase();
   
   return(
     {
       row_id: Number(rowid),
+      inv_id: inv_id,
       n: Number(n),
       d: Number(d),
       di: Number(di),
@@ -109,9 +126,16 @@ var collectRowData = function(rowid){
 
 var saveForm = function(){
   /*
-   * Upload row by row inside indexedDB
+   * Upload data to IndexedDB
+   * 1. Metadata
+   * 2. Inv rows
    * 
    */
+
+  // 1. Metadata
+  let metadata = collectMetadata();
+  idb.add(metadata, 'inv_metadata', 'inv_id')
+
 
   let html_rows = document.querySelectorAll('.inv-rows');
   
@@ -119,7 +143,7 @@ var saveForm = function(){
     let rowid = html_rows[i].dataset.rowid;
     let json_data = collectRowData(rowid);
     // Add data into the IndexedDB
-    idb.add(json_data);
+    idb.add(json_data, 'rows', 'row_id');
   }
 }
 
