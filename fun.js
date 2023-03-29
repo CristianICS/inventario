@@ -10,7 +10,7 @@ var renderJSONDropdown = function(json) {
   }
 };
 
-renderJSONDropdown(listado_especies);
+// renderJSONDropdown(listado_especies);
 
 var searchESP = function(esp_id){
   var result = listado_especies.filter(function(e){
@@ -266,6 +266,34 @@ class Row {
     }
     return(new_r.join(""));
   }
+}
+
+// Object with functions to search inside JSON with list of species
+var search = function(){
+  let search_val = document.getElementById('searchbar').value;
+  search_val = search_val.toLowerCase();
+
+  let searchField = "especie"
+
+  // Construct as list elements as search matches
+  let x = document.querySelector('#list-holder');
+  x.innerHTML = ""
+
+  for (i = 0; i < listado_especies.length; i++) {
+    let obj = listado_especies[i];
+
+    if (obj[searchField].toLowerCase().includes(search_val)) {
+      const elem = document.createElement("li")
+      elem.innerHTML = `${obj.N} - ${obj.especie}`
+      x.appendChild(elem)
+    }
+  }
+}
+
+// Delete all search matches
+var clearSearchBar = function(){
+  let x = document.querySelector('#list-holder');
+  x.innerHTML = "";
 }
 
 var sw = {

@@ -58,9 +58,16 @@
 
 <!-- Ayuda -->
 <div class="help box">
-    <p>
-        Lista de especies: <br><br> <select id="especies"></select>
-    </p>
+    <div id="search-bar">
+        <p>Buscar especie:</p>
+        <p style="display:flex; align-content: center; gap: 10px;">
+            <input id="searchbar" onkeyup="search()" type="text" name="search">
+            <img src="icons/cross.svg" onclick="clearSearchBar()">
+        </p>
+        <ul id="list-holder" style="max-height: 100px; overflow: auto;">
+        
+        </ul>
+    </div>
     <table style="border-collapse: collapse; margin-bottom: 20px; width: 100%;">
         <tr style="font-size: 0.8em;">
             <td>
