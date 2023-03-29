@@ -237,20 +237,18 @@ var downloadForm = function(){
 }
 
 class Row {
-  // Note: pattern="\d*" make appear the numeric keyboard
-  // https://developer.apple.com/library/archive/documentation/StringsTextFonts/Conceptual/TextAndWebiPhoneOS/KeyboardManagement/KeyboardManagement.html
   constructor(rn) { // Row number
     this.especie = '<span onclick="selectRow()" id="inv-esp-' + rn + '" class="especie">';
-    this.N = '<input type="text" id="inv-n-' + rn + '" name="N" onchange="writeEsp(this)" pattern="\d*">';
-    this.D = '<input type="text" id="inv-d-' + rn + '" name="D"> pattern="\d*"';
-    this.di = '<input type="text" id="inv-di-' + rn + '" name="di"> pattern="\d*"';
-    this.dd = '<input type="text" id="inv-dd-' + rn + '" name="dd"> pattern="\d*"';
-    this.h = '<input type="text" id="inv-h-' + rn + '" name="h"> pattern="\d*"';
-    this.dmay = '<input type="text" id="inv-dmay-' + rn + '" name="DM"> pattern="\d*"';
-    this.dmen = '<input type="text" id="inv-dmen-' + rn + '" name="Dm"> pattern="\d*"';
-    this.rmay = '<input type="text" id="inv-rmay-' + rn + '" name="rmay"> pattern="\d*"';
-    this.rmen = '<input type="text" id="inv-rmen-' + rn + '" name="rmen"> pattern="\d*"';
-    this.dbh = '<input type="text" id="inv-dbh-' + rn + '" name="dbh"> pattern="\d*"';
+    this.N = '<input type="text" id="inv-n-' + rn + '" name="N" onchange="writeEsp(this)">';
+    this.D = '<input type="text" id="inv-d-' + rn + '" name="D">';
+    this.di = '<input type="text" id="inv-di-' + rn + '" name="di">';
+    this.dd = '<input type="text" id="inv-dd-' + rn + '" name="dd">';
+    this.h = '<input type="text" id="inv-h-' + rn + '" name="h">';
+    this.dmay = '<input type="text" id="inv-dmay-' + rn + '" name="DM">';
+    this.dmen = '<input type="text" id="inv-dmen-' + rn + '" name="Dm">';
+    this.rmay = '<input type="text" id="inv-rmay-' + rn + '" name="rmay">';
+    this.rmen = '<input type="text" id="inv-rmen-' + rn + '" name="rmen">';
+    this.dbh = '<input type="text" id="inv-dbh-' + rn + '" name="dbh">';
   }
 
   createHTML(){
