@@ -79,7 +79,7 @@ var idb = {
 
         // Action to start when data is added to the database.
         transaction.oncomplete = (event) => {
-            alert("Data is saved!");
+            console.log("Data is saved!");
         };
 
         transaction.onerror = (event) => {

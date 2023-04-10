@@ -1,79 +1,208 @@
+:root{
+    --white: #ddddddff;
+    --black-soft: #35363aff;
+    --black-dark: #202124ff;
+}
+
+html
+{
+    /* Root Font Size (rem) */
+    font-size: 12px;
+}
 body
 {
-    background-color: rgb(43,43,43);
-    color: white;
+    background-color: var(--black-soft);
+    color: var(--white);
     font-family:  monospace, sans-serif;
     margin: 0;
+    padding: 0;
+    overflow: hidden;
 }
-/* Estilo de las cajas que componen el formulario */
-.box
+
+
+header
 {
-    margin: auto;
-    width: 90%;
+    display: flex;
+    align-items: center;
+    font-size: 1.6rem;
+    justify-content: space-between;
+    height: 10vh;
+    margin-bottom: 5vh;
 }
 h1
 {
-    color:white;
-    font-size: 2em;
-    margin: 0;
+    color:var(--white);
     text-align: center;
+    padding-left: 15px;
+}
+.download
+{
+    height: 100%;
+}
+.download img
+{
+    /* Set its height equal as parent div */
+    height: 100%;
+    width: auto;
+}
+
+
+.app-content
+{
+    border-radius: 5px;
+    height: 80vh; /* 80 + header height and margin bottom == 95 */
+    margin: auto;
+    overflow: auto;
+    width: 95vw;
+}
+.linear-gradient
+{
+    /*border-radius: 20px; it works with radius as well */
+    -webkit-mask:
+        linear-gradient(var(--black-dark) 0 0),
+        /* fade only the padding area
+        (in the opposite direction) */
+        linear-gradient(transparent,var(--black-dark) 100vh) padding-box;
+    -webkit-mask-composite: xor;
+        mask-composite: exclude;
+}
+.subcontent
+{
+    background-clip: content-box;
+    border: solid 2px var(--white); /* Same as .subtitle border */
+    font-size: 1.8rem;
+    margin: auto;
+    margin-bottom: 3vh;
+    padding: 0;
+    width: 90vw;
+}
+.subtitle
+{
+    background-color: var(--black-dark);
+    border-bottom: solid 2px var(--white);
+    display: flex;
+    margin: 0;
+    padding: 2vw;
+    justify-content: space-between;
+}
+.subtitle p
+{
+    margin: 0;
+}
+.arrow {
+    border: solid var(--white);
+    border-width: 0 0.6vw 0.6vw 0;
+    display: inline-block;
+    padding: 0.6vw;
+}
+.right {
+transform: rotate(-45deg);
+-webkit-transform: rotate(-45deg);
+}
+.left {
+transform: rotate(135deg);
+-webkit-transform: rotate(135deg);
+}
+.up {
+transform: rotate(-135deg);
+-webkit-transform: rotate(-135deg);
+}
+.down {
+transform: rotate(45deg);
+-webkit-transform: rotate(45deg);
+}
+
+/* Tables to display in subcontent divs */
+/* Collapse by default */
+.tbox
+{
+    display: none;
+    border: none;
+    margin: 0;
+    width: 100%;
+}
+/* Class to expand .tbox */
+.expand
+{
+    display: block;
+}
+.tbox td
+{
+    border: none;
+    padding: 2vh 2vw;
+}
+.tbox input
+{
+ font-size: 1em;
+ width: 90%;
+}
+.tbox textarea
+{
+ font-size: 1em;
+ width: 100%;
 }
 table
 {
-    border-collapse: separate;
-
-}
-.freeze-container
-{
-    max-height: 200px;
-    overflow: auto;
-}
-td, th
-{
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-/* freeze first row */
-th {
-    background-color: rgb(43,43,43);
-    top: 0;
-    position: sticky;
-    z-index: 100;
-}
-.metadata
-{
     border-collapse: collapse;
-}
-.metadata input
-{
-    max-width: 100%;
-}
-.especie
-{
-    margin: auto;
-    overflow-x: scroll;
-}
-input
-{
-    width: 90%;
-}
-textarea
-{
-    width: 98%;
-}
-select
-{
+    margin: 0;
     width: 100%;
 }
-.inv
+.td-item
 {
-    border: 1px solid white;
-    color: white;
+    align-items: center;
+    display: flex;
+    gap: 5%;
 }
-.help
+
+
+/* Info specific styles */
+.status
 {
-    border: 3px dash black;
+    border-radius:50%;
+    background-color: white;
+    display: inline-block;
+    height: 3vh;
+    width: 3vh;
+}
+.error
+{
+    background-color: #e34a33;
+    border: white solid 2px;
+}
+.success
+{
+    background-color: #2ca25f;
+    border: white solid 2px;
+}
+
+
+/* Search bar specific styles */
+.search-bar
+{
+    display:flex;
+    align-content: center;
+    gap: 10px;
+    margin-left: 2vw;
+}
+.search-results
+{
+    font-size: 1em;
+    max-height: 100px;
+    overflow: auto;
+}
+
+
+/* Inventario specific styles */
+.freeze-table{
+    height: 50vh;
+    margin: auto;
+    padding: 2vw;
+    overflow: auto;
+    width: 85vw;
+}
+.freeze-table input
+{
+    width: 10ch;
 }
 /* More than 2cm style (for column name) - No transparency */
 .mt2cm-header
@@ -94,86 +223,29 @@ select
 {
     background-color: rgba(255, 255, 255, 0.3);
 }
-.help-2cm-legend
-{
-    border-radius: 10%;
-    display:inline-block;
-    height: 20px;
-    width: 20px;
-}
-.flex-td
-{
-    display:flex;
-    align-items: center;
-    gap: 10px;
-}
+
 .more
 {
     margin: 25px auto;
     text-align: center;
 }
-.plus
-{
-    display: inline-block;
-    margin: 0 auto;
-    width: 200px;
-    height: auto;
-}
+
 .selected
 {
     background-color: aqua;
 }
-.status
-{
-    display: flex;
-    gap: 5px;
-    justify-content: center;
-    margin: 15px auto;
-    width: 90vw;
-}
-.indexeddb
-{
-    border-radius:50%;
-    background-color: white;
-    display: block;
-    height: 20px;
-    width: 20px;
-}
-.service-worker
-{
-    border-radius:50%;
-    background-color: white;
-    display: block;
-    height: 20px;
-    width: 20px;
-}
-.error
-{
-    background-color: #fc9272;
-    border: white solid 2px;
-}
-.success
-{
-    background-color: #addd8e;
-    border: white solid 2px;
-}
-.download
-{
-    float: right;
-}
-.download img
-{
-    width: 50px;
-    height: auto;
-}
+
+
+
 /* hide the up and down buttons in input type=number */
 input[type="number"]
 {
     -moz-appearance: textfield;
 }
-input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button
-{ 
-    -webkit-appearance: none; 
-    margin: 0; 
+{
+    -webkit-appearance: none;
+    margin: 0;
 }
+

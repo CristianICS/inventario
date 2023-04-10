@@ -1,4 +1,41 @@
-// Read CSV with vegetation legend and create dropdown
+class Row {
+
+  constructor(rn) { // Row number
+    this.especie = '<input type="text" id="inv-esp-' + rn + '" name="esp">';
+    this.N = '<input type="number" id="inv-n-' + rn + '" name="N" onchange="writeEsp(this)">';
+    this.D = '<input type="number" id="inv-d-' + rn + '" name="D">';
+    this.di = '<input type="number" id="inv-di-' + rn + '" name="di">';
+    this.dd = '<input type="number" id="inv-dd-' + rn + '" name="dd">';
+    this.h = '<input type="number" id="inv-h-' + rn + '" name="h">';
+    this.dmay = '<input type="number" id="inv-dmay-' + rn + '" name="DM">';
+    this.dmen = '<input type="number" id="inv-dmen-' + rn + '" name="Dm">';
+    this.rmay = '<input type="number" id="inv-rmay-' + rn + '" name="rmay">';
+    this.rmen = '<input type="number" id="inv-rmen-' + rn + '" name="rmen">';
+    this.dbh = '<input type="number" id="inv-dbh-' + rn + '" name="dbh">';
+  }
+
+  createHTML(){
+    let new_r = [];
+    let elements = Object.values(this);
+    for(var i = 0; i < elements.length; i++){
+      // Print 5 last column with background color
+      if (i >= 6 & i < 8){
+        new_r.push('<td class="lt2cm">' + elements[i] + '</td>');
+      } else if (i >= 8) {
+        new_r.push('<td class="mt2cm">' + elements[i] + '</td>');
+      } else {
+        new_r.push('<td>' + elements[i] + '</td>');
+      }
+    }
+    return(new_r.join(""));
+  }
+}
+
+/**
+ * Create dropdown with veg list
+ * ===================================================
+ * @param {*} json JSON veg list
+ */
 var renderJSONDropdown = function(json) {
   var dropdown = document.getElementById('especies');
   for (var i = 0; i < json.length; i++) {
@@ -10,33 +47,64 @@ var renderJSONDropdown = function(json) {
   }
 };
 
-// renderJSONDropdown(listado_especies);
-
-var searchESP = function(esp_id){
-  var result = listado_especies.filter(function(e){
-    return e.N == esp_id;
-  });
-  return result[0].especie;
+/**
+ * Collapse/expand subsontent chunks
+ * ===========================
+ * @param {String} id Identifier from DIV to collapse/expand
+ * @param {HTMLElement} arrow Arrow html object
+ */
+var acordeon = function(id, arrow){
+  // Get div to collapse/expand
+  let d = document.getElementById('sub-' + id);
+  if (d.classList.contains('expand')){
+    // COLLAPSE
+    d.classList.remove('expand');
+    // Modify arrow direction
+    arrow.childNodes[0].classList.remove('up');
+    arrow.childNodes[0].classList.add('down');
+  } else {
+    // EXPAND
+    d.classList.add('expand');
+    // Modify arrow direction
+    arrow.childNodes[0].classList.remove('down');
+    arrow.childNodes[0].classList.add('up');
+  }
 }
 
-// Write veg name when N is chosen
+/**
+ * Write veg name when N is chosen
+ * ================================
+ * Function inside the onchange tag on every
+ * N rows.
+ * @param {HTMLElement} selected_element
+ */
 var writeEsp = function(selected_element){
   // Get row ID
   let rid = selected_element.id.split('-')[2];
-  // Select the ESP container of the row
+  // Select the Especie input
   let especie = document.getElementById('inv-esp-' + rid);
   // Write esp inside above container
-  especie.innerText = searchESP(Number(selected_element.value));
+  especie.value = search.filter(Number(selected_element.value));
 }
 
-// Count rows
+/**
+ * Count the number of rows inside Ficha table
+ * ===========================================
+ * @returns Number of rows inside Ficha
+ */
 var countRows = function(){
   let rows = document.getElementsByClassName("inv-rows");
   let nrows = rows.length;
   return(nrows);
 }
 
-// Add another row
+/**
+ * Create new Row
+ * ===============
+ * Initialize a new Row class and include it
+ * inside a tr element. Then appen it to the
+ * Ficha table.
+ */
 var addRow = function(){
   // Count existing rows
   let nrows = countRows() + 1;
@@ -54,13 +122,22 @@ var addRow = function(){
   table.appendChild(newr);
 }
 
-// Select a row by click in "Especie"
+/**
+ * Modifiy the classList of a tr element
+ * ======================================
+ * This function is inside on onclick tag from a tr element.
+ * @param {HTMLElement} r <tr> element to select
+ */
 var selectRow = function(r){
   // if selected is set remove it, otherwise add it
   r.classList.toggle('selected');
 }
 
-// Remove row (prior must be a selected row)
+/**
+ * Remove row/rows
+ * ===============
+ * The row/rows must have been selected.
+ */
 var removeRow = function(){
   // Get selected row/rows
   let row = document.querySelector('.selected');
@@ -98,8 +175,8 @@ var collectMetadata = function(){
 }
 
 /**
- * Get all data from the form
- * ==========================
+ * Get data from a row inside Ficha
+ * =================================
  *
  * @param {Text} rowid The row id from which the data must be retrieved
  * @returns Row data in JSON
@@ -136,12 +213,12 @@ var collectRowData = function(rowid){
   )
 }
 
-  /**
-   * Upload data to IndexedDB
-   * ==========================
-   * 1. Metadata
-   * 2. Inv rows
-   */
+/**
+ * Upload data to IndexedDB
+ * ==========================
+ * 1. Metadata
+ * 2. Inv rows
+ */
 var saveForm = function(){
 
   // 1. Metadata
@@ -163,15 +240,17 @@ var saveForm = function(){
  * Transform Array of JSON rows into csv like array
  * ===============================================
  * Example data:
- * [{row1 in json}, {row2 in json}]
+ * [{colnames in json}, {row1 in json}]
  *
  * Example output:
  * [[colnames sep by colons], [row1 values], [row2 values] ...]
  *
+ * This formula is used inside downloadForm()
+ *
  * @param {Array} json
  */
 var jsonToArray = function(json){
-  // Get the colnames
+  // Get colnames
   // IMPORTANT: All the keys stored in the json inside the array MUST BE EQUALS
   let array = [Object.keys(json[0])];
   // Get rownames
@@ -187,7 +266,7 @@ var jsonToArray = function(json){
  * Save form data/metadata in two CSVs
  * ===================================
  *
- * Note: All IDB function reutrn the data in a callback, and
+ * Note: All IDB function reuturn the data in a callback, and
  * we retrieve that with a callback function.
  *
  */
@@ -236,65 +315,39 @@ var downloadForm = function(){
   });
 }
 
-class Row {
+// Object with functions to search inside JSON with list of species
+var search = {
+  auto(){
+    let search_val = document.getElementById('searchbar').value;
+    search_val = search_val.toLowerCase();
 
-  constructor(rn) { // Row number
-    this.especie = '<span onclick="selectRow()" id="inv-esp-' + rn + '" class="especie">';
-    this.N = '<input type="number" id="inv-n-' + rn + '" name="N" onchange="writeEsp(this)">';
-    this.D = '<input type="number" id="inv-d-' + rn + '" name="D">';
-    this.di = '<input type="number" id="inv-di-' + rn + '" name="di">';
-    this.dd = '<input type="number" id="inv-dd-' + rn + '" name="dd">';
-    this.h = '<input type="number" id="inv-h-' + rn + '" name="h">';
-    this.dmay = '<input type="number" id="inv-dmay-' + rn + '" name="DM">';
-    this.dmen = '<input type="number" id="inv-dmen-' + rn + '" name="Dm">';
-    this.rmay = '<input type="number" id="inv-rmay-' + rn + '" name="rmay">';
-    this.rmen = '<input type="number" id="inv-rmen-' + rn + '" name="rmen">';
-    this.dbh = '<input type="number" id="inv-dbh-' + rn + '" name="dbh">';
-  }
+    let searchField = "especie"
 
-  createHTML(){
-    let new_r = [];
-    let elements = Object.values(this);
-    for(var i = 0; i < elements.length; i++){
-      // Print 5 last column with background color
-      if (i >= 6 & i < 8){
-        new_r.push('<td class="lt2cm">' + elements[i] + '</td>');
-      } else if (i >= 8) {
-        new_r.push('<td class="mt2cm">' + elements[i] + '</td>');
-      } else {
-        new_r.push('<td>' + elements[i] + '</td>');
+    // Construct as list elements as search matches
+    let x = document.querySelector('#list-holder');
+    x.innerHTML = ""
+
+    for (i = 0; i < listado_especies.length; i++) {
+      let obj = listado_especies[i];
+
+      if (obj[searchField].toLowerCase().includes(search_val)) {
+        const elem = document.createElement("li")
+        elem.innerHTML = `${obj.N} - ${obj.especie}`
+        x.appendChild(elem)
       }
     }
-    return(new_r.join(""));
+  },
+  // Delete all search matches
+  clear(){
+    let x = document.querySelector('#list-holder');
+    x.innerHTML = "";
+  },
+  filter(esp_id){
+    var result = listado_especies.filter(function(e){
+      return e.N == esp_id;
+    });
+    return result[0].especie;
   }
-}
-
-// Object with functions to search inside JSON with list of species
-var search = function(){
-  let search_val = document.getElementById('searchbar').value;
-  search_val = search_val.toLowerCase();
-
-  let searchField = "especie"
-
-  // Construct as list elements as search matches
-  let x = document.querySelector('#list-holder');
-  x.innerHTML = ""
-
-  for (i = 0; i < listado_especies.length; i++) {
-    let obj = listado_especies[i];
-
-    if (obj[searchField].toLowerCase().includes(search_val)) {
-      const elem = document.createElement("li")
-      elem.innerHTML = `${obj.N} - ${obj.especie}`
-      x.appendChild(elem)
-    }
-  }
-}
-
-// Delete all search matches
-var clearSearchBar = function(){
-  let x = document.querySelector('#list-holder');
-  x.innerHTML = "";
 }
 
 var sw = {

@@ -29,6 +29,8 @@ const PRECACHE_URLS = [
   'icons/download.svg',
   'icons/cross.svg',
   'icons/save.svg',
+  'icons/favicon.svg',
+  'icons/favicon.ico'
 ];
 
 // The install handler takes care of precaching the resources we always need.
