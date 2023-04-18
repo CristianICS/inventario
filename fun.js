@@ -125,7 +125,7 @@ var addRow = function(){
 /**
  * Modifiy the classList of a tr element
  * ======================================
- * This function is inside on onclick tag from a tr element.
+ * This function is inside onclick tag on <tr> element.
  * @param {HTMLElement} r <tr> element to select
  */
 var selectRow = function(r){
@@ -223,7 +223,12 @@ var saveForm = function(){
 
   // 1. Metadata
   let metadata = collectMetadata();
-  idb.addData(metadata, 'inv_metadata', 'inv_id')
+  // prevent to add blank metadata ID
+  if(metadata.inv_id.length > 0){
+    idb.addData(metadata, 'inv_metadata', 'inv_id');
+  } else {
+    alert("¡Atención!: El ID del inventario no puede estar vacío.");
+  }
 
   // 2. Rows
   let html_rows = document.querySelectorAll('.inv-rows');
@@ -270,9 +275,8 @@ var jsonToArray = function(json){
  * we retrieve that with a callback function.
  *
  */
-var downloadForm = function(){
+var downloadForm = function(form_id){
   // 1. EXPORT METADATA
-  let form_id = document.getElementById("inv-id").value.toUpperCase();
   idb.getAllData("inv_metadata", form_id, false, function(result){
     if(result.length > 0){
 

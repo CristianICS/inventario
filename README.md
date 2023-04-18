@@ -5,8 +5,6 @@ PWA (Progressive Web Application) to collect vegetation data at field.
 
 ## todo
 
-- Make style responsive to mobile devices
-- Prevent to download the data if metadata rows are not completed
 - Mostrar inventarios guardados en local (indexeddb)
-- Modificar el siguiente comportamiento: Los datos del inventario no pueden guardarse si no están en la IDB
-- Add linear gradient to app-content when overflow will be activated
+- Add an option to catch an image
+- Make style responsive to mobile devices

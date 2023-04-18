@@ -65,7 +65,7 @@ var idb = {
     /**
      * Add data inside Indexed DB
      * ==============================
-     * Push data into IndexedDB (i.e. with replace if data's key match
+     * Push data into IndexedDB, i.e. **with replace** if data's key match
      * with an existing DB key)
      *
      * @param {JSON} data
@@ -144,6 +144,37 @@ var idb = {
 
       request.onsuccess = (event) => {
         callback(event.target.result);
+      }
+    },
+    showSavedForms(){
+      const transaction = this.db.transaction(['inv_metadata']);
+
+      transaction.onerror = (event) => {
+        console.error(`[IDBTransaction error]: ${event.target.error}`);
+        alert("Uups, something went wrong. Try it again!");
+      };
+
+      const objectStore = transaction.objectStore('inv_metadata');
+
+      var request = objectStore.getAll();
+
+      request.onerror = (event) => {
+        console.error(`[IDBPut request error]: ${event.target.error}`);
+      }
+
+      request.onsuccess = (event) => {
+        let m = event.target.result;
+        document.querySelector('.block-div').style.display = "block";
+        document.querySelector('.saved-box').style.display = "block";
+        var container = document.querySelector('#saved-forms-list');
+        // Show metadata tags
+        for(let i = 0; i < m.length; i++){
+          var form_id = m[i].inv_id;
+          var child = document.createElement('li');
+          child.innerText = form_id
+          child.setAttribute('onclick', 'downloadForm("' + form_id.toUpperCase() + '")');
+          container.appendChild(child);
+        }
       }
     }
 }

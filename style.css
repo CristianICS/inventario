@@ -235,8 +235,6 @@ table
     background-color: aqua;
 }
 
-
-
 /* hide the up and down buttons in input type=number */
 input[type="number"]
 {
@@ -249,3 +247,35 @@ input[type="number"]::-webkit-outer-spin-button
     margin: 0;
 }
 
+.block-div
+{
+    background-color: rgba(50,50,50,.8);
+    height: 100vh;
+    position: absolute;
+    top: 0;
+    width: 100vw;
+}
+.saved-box
+{
+    background-color: var(--black-dark);
+    border: 2px solid var(--white);
+    border-radius: 5px;
+    font-size: 1.3em;
+    height: 50vh;
+    left: 25vw;
+    position: absolute;
+    top: 25vh;
+    overflow: auto;
+    width: 50vw;
+    z-index: 5;
+}
+.saved-box p
+{
+    margin: 5% auto;
+    width: 80%;
+}
+.saved-box ul
+{
+    width: 80%;
+    margin: 5% auto;
+}
