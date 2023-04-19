@@ -15,7 +15,7 @@
 <body>
 
 <!-- Box to display saved forms in IDB -->
-<div class="saved-box" style="display:none;">
+<div class="saved-box" style="display:none;" id="saved-forms-box">
     <p>
         <i>
             Si el formulario actual no se muestra en la lista, por favor guarde
@@ -31,7 +31,7 @@
 <!-- Title and download button -->
 <header>
     <h1>Inventario</h1>
-    <div class="download" onclick="downloadForm();">
+    <div class="download" onclick="idb.showSavedForms();">
         <img src="icons/download.svg">
     </div>
 </header>

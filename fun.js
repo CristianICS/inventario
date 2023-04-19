@@ -354,6 +354,15 @@ var search = {
   }
 }
 
+// Close the save form's panel when user clicks outside its frame
+addEventListener("click", (event) => {
+  let saved_forms = document.querySelector('.saved-box');
+  if(event.target.id != 'saved-forms-box' && saved_forms.style.display == 'block'){
+    saved_forms.style.display = 'none';
+    document.querySelector('.block-div').style.display = "none"
+  }
+});
+
 var sw = {
   available: false,
   /**
