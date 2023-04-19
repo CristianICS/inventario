@@ -140,12 +140,11 @@ var selectRow = function(r){
  */
 var removeRow = function(){
   // Get selected row/rows
-  let row = document.querySelector('.selected');
-  if(row){
+  let rows = document.querySelectorAll('.selected');
+  if(rows.length > 0){
     if(confirm("Do you want to delete selected row/rows?")){
-      let selectedRows = document.querySelectorAll('.selected');
-      for(let i = 0; i < selectedRows.length; i++){
-        selectedRows[i].remove();
+      for(let i = 0; i < rows.length; i++){
+        rows[i].remove();
       }
     }
   } else {
@@ -154,12 +153,146 @@ var removeRow = function(){
 }
 
 /**
+ * Convert image into base64 URL
+ * ============================
+ * Get the file uploaded into the
+ * input type 'file' from the form
+ * and transfom its into base64 URL.
+ *
+ * Then add this URL in an `<img>`
+ * object to preview the image.
+ *
+ * The transformation is done by readAsDataURL
+ * method applied to a new FileReader Object.
+ *
+ * @param {String} inputID: The input type file ID that contain the image file
+ */
+var previewFile = function(inputID) {
+  let preview = document.getElementById('img-preview');
+  let file_input = document.getElementById(inputID);
+  let file = file_input.files[0];
+
+  // Get the extension and save it
+  let extension = file.name.split('.')[1];
+  preview.setAttribute('data-extension', extension);
+  // Add cature time in miliseconds since midnight, 1 Jan 1970
+  preview.setAttribute('data-time', new Date().getTime()) 
+  // Create file reader to handle image src
+  let reader = new FileReader();
+
+  // This code will activate when reader.readAsDataURL function is completed.
+  reader.addEventListener("load", function () {
+      preview.src = reader.result;
+  }, false);
+
+  // Make sure `file.name` matches extensions criteria
+  if ( /\.(jpe?g|png)$/i.test(file.name)) {
+      // convert image file to base64 string
+      reader.readAsDataURL(file);
+  }
+}
+
+/**
+* Create an object with image parameters
+* ======================================
+* Return an object with image parameters
+* into a JSON object.
+* 
+* Plus: The image is COMPRESSED
+*
+* It creates this properties:
+*  1: id (composed with the capture's date)
+*  1: src (in base64)
+*  2: extension
+*  3: row_id (the row which the image is linked)
+*  4: form_id 
+*  4: capture_date
+*  5: size (bit size)
+*
+*/
+var digestImage = function() {
+  let img = {};
+
+  // Preview image object
+  let img_div = document.getElementById("img-preview");
+  let src_original = img_div.src
+
+  // Check if there is an image
+  if (src_original.length < 50) {
+      alert("Atenci\u{00F3}n: Ninguna imagen seleccionada.")
+      return false;
+  }
+
+  // 1. Create canvas and write preview image object
+  let originalCanvas = document.createElement('canvas');
+
+  // Save original image dimensions divided by 3 and resize the canvas with them
+  let origiWidth = img_div.naturalWidth/3;
+  let origiHeight = img_div.naturalHeight/3;
+  originalCanvas.width = origiWidth;
+  originalCanvas.height = origiHeight;
+
+  // Draw Image
+  let ctxOriginal = originalCanvas.getContext("2d");
+  ctxOriginal.drawImage(img_div, 0, 0, origiWidth, origiHeight);
+
+  // Save the extension in jsn object
+  img.extension = img_div.dataset.extension;
+
+  // 3. Save compressed original image in jsn object
+  // (compress 50% relative to original image but with the same dimensions)
+  if(img.extension === "png"){
+      img.src = originalCanvas.toDataURL("image/png", 0.5);
+  } else {
+      img.src = originalCanvas.toDataURL("image/jpeg", 0.5);
+      // Extensions != png, jpeg
+      img.extension = 'jpeg';
+  }
+
+  // Get the byte size of compressed image
+  let size = img.src.split(",")[1].split("=")[0];
+  let strLength = size.length;
+  let fileLength = strLength - (strLength / 8) * 2;
+  img.size = Math.floor (fileLength);
+
+  // 4. Remove canvas object
+  originalCanvas.remove();
+
+  // 5. Add remaining attributes
+  img.id = Number(img_div.dataset.time);
+  img.capture_date = new Date(img.id).toJSON();
+
+  // Select the row_id inside the image is refered
+  let row = document.querySelectorAll('.selected');
+  if(row.length == 1){
+    img.row_id = row[0].dataset.rowid
+  } else {
+    alert(`Atenci\u{00F3}n: Selecciona la fila a la que a\u{00F1}adir la imagen.`);
+    return false;
+  }
+
+  // Select and save the form ID
+  let form_id = document.getElementById('inv-id').value.toUpperCase;
+  if(form_id.length == 0){
+    alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+    return false;
+  }
+
+  idb.addData([img], 'images', 'id');
+}
+
+var takePicture = function(){
+  document.querySelector('.block-div').style.display = "block";
+  document.querySelector('.picture-box').style.display = "block";
+}
+
+/**
  * Retrieve info from metadata table
  * ================================
  * @returns Metadata in JSON
  */
 var collectMetadata = function(){
-  let id = document.getElementById('inv-id').value;
+  let id = document.getElementById('inv-id').value.toUpperCase();
   let date = document.getElementById('inv-date').value;
   let pinit = document.getElementById('inv-init').value;
   let pend = document.getElementById('inv-end').value;
@@ -214,31 +347,43 @@ var collectRowData = function(rowid){
 }
 
 /**
- * Upload data to IndexedDB
+ * Upload metadata to IndexedDB
  * ==========================
- * 1. Metadata
- * 2. Inv rows
  */
-var saveForm = function(){
-
-  // 1. Metadata
+var saveMetadata = function(){
   let metadata = collectMetadata();
   // prevent to add blank metadata ID
   if(metadata.inv_id.length > 0){
-    idb.addData(metadata, 'inv_metadata', 'inv_id');
+    idb.addData([metadata], 'inv_metadata', 'inv_id');
   } else {
-    alert("¡Atención!: El ID del inventario no puede estar vacío.");
+    alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+  }
+}
+
+/**
+ * Upload table rows to IndexedDB
+ * ==========================
+ */
+var saveForm = function(){
+  // Check the form ID
+  let form_id = document.getElementById('inv-id').value.toUpperCase();
+  if(form_id.length == 0){
+    alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+    return false;
   }
 
   // 2. Rows
   let html_rows = document.querySelectorAll('.inv-rows');
+  let json_rows = [];
 
   for(let i = 0; i < html_rows.length; i ++){
     let rowid = html_rows[i].dataset.rowid;
     let json_data = collectRowData(rowid);
-    // Add data into the IndexedDB
-    idb.addData(json_data, 'rows', 'row_id');
+    json_rows.push(json_data);
   }
+
+  // Add data into the IndexedDB
+  idb.addData(json_rows, 'rows', 'row_id');
 }
 
 /**
@@ -354,11 +499,13 @@ var search = {
   }
 }
 
-// Close the save form's panel when user clicks outside its frame
+// Close the .float-box when user clicks outside its frame
 addEventListener("click", (event) => {
-  let saved_forms = document.querySelector('.saved-box');
-  if(event.target.id != 'saved-forms-box' && saved_forms.style.display == 'block'){
-    saved_forms.style.display = 'none';
+  console.log(event)
+  if(!event.target.classList.contains('float-box')){
+    document.querySelectorAll('.float-box').forEach((item) => {
+      item.style.display = 'none';
+    })
     document.querySelector('.block-div').style.display = "none"
   }
 });

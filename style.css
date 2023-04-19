@@ -2,6 +2,7 @@
     --white: #ddddddff;
     --black-soft: #35363aff;
     --black-dark: #202124ff;
+    --green: #1e6604ff;
 }
 
 html
@@ -255,27 +256,78 @@ input[type="number"]::-webkit-outer-spin-button
     top: 0;
     width: 100vw;
 }
-.saved-box
+.float-box
 {
     background-color: var(--black-dark);
     border: 2px solid var(--white);
     border-radius: 5px;
     font-size: 1.3em;
-    height: 50vh;
+    height: 45vh;
     left: 25vw;
+    padding: 5vh 5vw;
     position: absolute;
     top: 25vh;
     overflow: auto;
-    width: 50vw;
+    width: 45vw;
     z-index: 5;
 }
 .saved-box p
 {
-    margin: 5% auto;
-    width: 80%;
+    width: 100%;
 }
 .saved-box ul
 {
+    width: 100%;
+}
+
+.picture-box
+{
+    overflow: hidden;
+}
+.img-preview {
+    border: 2px dashed white;
+    border-radius: 5px;
+    height: 80%;
+    margin: auto;
     width: 80%;
-    margin: 5% auto;
+}
+.img-preview img
+{
+    display: block;
+    height: 100%;
+    margin: auto;
+    width: auto;
+}
+/* Perform input trick: hide an input element (transparent 100%) and put below
+a 'fake' button. When the user taps the button the hide input will be clicked. */
+div.fileinputs {
+	position: relative;
+    text-align: center;
+    width: 50%;
+}
+
+div.fakefile {
+	position: absolute;
+	top: 0px;
+    left: 0px;
+    width: 100%;
+	z-index: 1;
+}
+
+input.file {
+	position: relative;
+	opacity: 0;
+    width: 100%;
+	z-index: 2;
+}
+
+.fakefile button {
+    padding: 3px 10px;
+    background-color: var(--white);
+    border-radius: 5px;
+    border: none;
+    appearance: none;
+	text-decoration: none;
+    color: var(--black-dark);
+    font-weight: 400;
 }

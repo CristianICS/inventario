@@ -3,42 +3,61 @@ var idb = {
     db: null,
     dbname: "inventario",
     init(){
-        // Init database
-        const request = window.indexedDB.open(this.dbname, 1);
 
-        request.onerror = (event) => {
-            console.error(`[IndexedDB request error]: ${event.target.errorCode}`);
-            document.querySelector(".indexeddb").classList.add("error");
-        };
-        request.onsuccess = (event) => {
-            document.querySelector(".indexeddb").classList.add("success");
-            // Save DB instance
-            this.db = event.target.result;
+      // Init database
+      const request = window.indexedDB.open(this.dbname, 2);
 
-            // Test if ObjectStore are already created
-            this.testIDB();
-        };
+      request.onerror = (event) => {
+          console.error(`[IndexedDB request error]: ${event.target.errorCode}`);
+          document.querySelector(".indexeddb").classList.add("error");
+      };
+      request.onsuccess = (event) => {
+          document.querySelector(".indexeddb").classList.add("success");
+          // Save DB instance
+          this.db = event.target.result;
 
-        // IMPORTANT: This event is only implemented in recent browsers
-        request.onupgradeneeded = (event) => {
-            // Save the IDBDatabase interface
-            this.db = event.target.result;
+          // Test if ObjectStore are already created
+          this.testIDB();
+      };
 
-            // The DB is divided in two tables (Object Stores)
-            // Table to store form rows as JSON objects
-            const objectStore = this.db.createObjectStore("rows", {
-                keyPath: "row_id"
-            });
+      // IMPORTANT: This event is only implemented in recent browsers
+      request.onupgradeneeded = (event) => {
+
+        // Save the IDBDatabase interface
+        this.db = event.target.result;
+
+        // Create DB ObjectStore
+        // The DB is divided in three tables (Object Stores)
+
+        // 1. Table to store form rows as JSON objects
+        if (!this.db.objectStoreNames.contains('rows')){
+          const r_objectStore = this.db.createObjectStore("rows", {
+              keyPath: "row_id"
+          });
 
           // Create an index to search rows by form id. We have duplicates
           // so we can't use a unique index.
-          objectStore.createIndex("inv_id", "inv_id", { unique: false });
+          r_objectStore.createIndex("inv_id", "inv_id", { unique: false });
+        }
 
-          // Create table to store form metadata
-          const metadata_objectStore = this.db.createObjectStore("inv_metadata", {
-                keyPath: "inv_id"
+        // 2. Create table to store form metadata
+        if (!this.db.objectStoreNames.contains('inv_metadata')){
+          const m_objectStore = this.db.createObjectStore("inv_metadata", {
+            keyPath: "inv_id"
           });
         }
+
+        // 3. Table to store images
+        if (!this.db.objectStoreNames.contains('images')){
+          const i_objectStore = this.db.createObjectStore("images", {
+              keyPath: "id"
+          });
+
+          // Create an index to search images by form id. We have duplicates
+          // so we can't use a unique index.
+          i_objectStore.createIndex("form_id", "form_id", { unique: false });
+        }
+      }
     },
 
     /**
@@ -68,27 +87,31 @@ var idb = {
      * Push data into IndexedDB, i.e. **with replace** if data's key match
      * with an existing DB key)
      *
-     * @param {JSON} data
+     * @param {Array} data Array with JSON objects [{...}]
      * @param {Text} os: Object Store's name where data is loaded
-     * @param {Text} key: The data's id to start a IDB get transaction
+     * @param {Text} key: The data's id key to start a IDB get transaction
      *
      */
-    addData(data, os, key){
+    addData(data_array, os, key){
 
-        const transaction = this.db.transaction([os], "readwrite");
+      const transaction = this.db.transaction([os], "readwrite");
 
-        // Action to start when data is added to the database.
-        transaction.oncomplete = (event) => {
-            console.log("Data is saved!");
-        };
+      // Action to start when data is added to the database.
+      transaction.oncomplete = (event) => {
+          alert("Data is saved!");
+      };
 
-        transaction.onerror = (event) => {
-          console.error(`[IDBTransaction error]: ${event.target.error}`);
-          alert("Uups, something went wrong. Try it again!");
-        };
+      transaction.onerror = (event) => {
+        console.error(`[IDBTransaction error]: ${event.target.error}`);
+        alert("Uups, something went wrong. Try it again!");
+      };
 
-        const objectStore = transaction.objectStore(os);
+      const objectStore = transaction.objectStore(os);
 
+      for (let i = 0; i < data_array.length; i++) {
+        
+        const data = data_array[i];
+        
         // Check if data is already inside IndexedDB
         const request_get = objectStore.get(data[key]);
 
@@ -107,9 +130,10 @@ var idb = {
             console.error(`[IDBPut request error]: ${event.target.error}`);
           };
           request_update.onsuccess = (event) => {
-            console.log(`Row saved - key ${event.target.result}`);
+            console.log(`Saved item with key ${event.target.result}`);
           };
         };
+      }
     },
     /**
      * Get all the data in IDB by key
@@ -167,6 +191,8 @@ var idb = {
         document.querySelector('.block-div').style.display = "block";
         document.querySelector('.saved-box').style.display = "block";
         var container = document.querySelector('#saved-forms-list');
+        // Remove prior data
+        container.textContent = '';
         // Show metadata tags
         for(let i = 0; i < m.length; i++){
           var form_id = m[i].inv_id;
