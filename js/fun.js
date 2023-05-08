@@ -31,6 +31,7 @@ class Row {
   }
 }
 
+
 /**
  * Create dropdown with veg list
  * ===================================================
@@ -272,10 +273,12 @@ var digestImage = function() {
   }
 
   // Select and save the form ID
-  let form_id = document.getElementById('inv-id').value.toUpperCase;
+  let form_id = document.getElementById('inv-id').value.toUpperCase();
   if(form_id.length == 0){
     alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
     return false;
+  } else {
+    img.inv_id = form_id
   }
 
   idb.addData([img], 'images', 'id');
@@ -330,6 +333,7 @@ var collectRowData = function(rowid){
 
   return(
     {
+      id: Number(new Date().getTime()),
       row_id: Number(rowid),
       inv_id: inv_id,
       n: Number(n),
@@ -351,12 +355,14 @@ var collectRowData = function(rowid){
  * ==========================
  */
 var saveMetadata = function(){
-  let metadata = collectMetadata();
-  // prevent to add blank metadata ID
-  if(metadata.inv_id.length > 0){
-    idb.addData([metadata], 'inv_metadata', 'inv_id');
-  } else {
-    alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+  if(confirm("Si ya existe un inventario con el mismo ID se actualizará, continuar? ")) {
+    let metadata = collectMetadata();
+    // prevent to add blank metadata ID
+    if(metadata.inv_id.length > 0){
+      idb.addData([metadata], 'inv_metadata', 'inv_id');
+    } else {
+      alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+    }
   }
 }
 
@@ -383,7 +389,7 @@ var saveForm = function(){
   }
 
   // Add data into the IndexedDB
-  idb.addData(json_rows, 'rows', 'row_id');
+  idb.addRows(json_rows);
 }
 
 /**
@@ -416,6 +422,11 @@ var jsonToArray = function(json){
  * Save form data/metadata in two CSVs
  * ===================================
  *
+ * Download metadata, form and images inside a zip folder:
+ * 
+ * 1. Transform IDB array (metadata and form) into csv
+ * 2. Insert prior data into a function to compress files in a zip folder
+ * 
  * Note: All IDB function reuturn the data in a callback, and
  * we retrieve that with a callback function.
  *
@@ -428,40 +439,138 @@ var downloadForm = function(form_id){
       // Transform data into an array
       let rows = jsonToArray(result);
       // Create csv (https://stackoverflow.com/a/14966131)
-      let csvContent = "data:text/csv;charset=utf-8,"
-      + rows.map(e => e.join(",")).join("\n");
+      var csvContent_metadata = rows.map(e => e.join(",")).join("\n");
 
-      // Export with custom name
-      var encodedUri = encodeURI(csvContent);
+      /*
+      // Export with custom name (Prior version - outside zip folder)
+      var encodedUri_metadata = encodeURI("data:text/csv;charset=utf-8," + csvContent_metadata);
       var link = document.createElement("a");
       link.setAttribute("href", encodedUri);
       link.setAttribute("download", `${form_id}_metadata.csv`);
       document.body.appendChild(link); // Required for FF
-
       link.click(); // This will download the data
+      */
 
       // 2. EXPORT FORM ROWS
       idb.getAllData("rows", form_id, 'inv_id', function(result){
-        console.log(result)
+
         if(result.length > 0){
+
           // Transform data into an array
           let rows = jsonToArray(result);
           // Create csv (https://stackoverflow.com/a/14966131)
-          let csvContent = "data:text/csv;charset=utf-8,"
-          + rows.map(e => e.join(",")).join("\n");
+          var csvContent_form = rows.map(e => e.join(",")).join("\n");
 
-          // Export with custom name
-          var encodedUri = encodeURI(csvContent);
+          let download_data = 
+          [
+            {'name': 'inventario_' + form_id + '.csv', 'content': csvContent_form},
+            {'name': 'metadatos_' + form_id + '.csv', 'content': csvContent_metadata}
+          ]
+
+          // Try to download images and then use function compressFiles()
+          downloadImages(form_id, download_data, compressFiles)
+
+          /*
+          // Export with custom name (Prior version - outside zip folder)
+          var encodedUri = encodeURI("data:text/csv;charset=utf-8," + csvContent_form);
           var link = document.createElement("a");
           link.setAttribute("href", encodedUri);
           link.setAttribute("download", `${form_id}.csv`);
           document.body.appendChild(link); // Required for FF
-
           link.click(); // This will download the data
+          */
         }
       })
     }
+
   });
+}
+
+/**
+ * Fetch the content and return the associated promise.
+ * @param {String} url the url of the content to fetch.
+ * @return {Promise} the promise containing the data.
+ * 
+ * From FileSaver.js
+ */
+function urlToPromise(url) {
+  return new Promise(function(resolve, reject) {
+      JSZipUtils.getBinaryContent(url, function (err, data) {
+          if(err) {
+              reject(err);
+          } else {
+              resolve(data);
+          }
+      });
+  });
+}
+
+/**
+ * Compress images
+ * =====================
+ * Get all images inside the DB that link with inv_id to export.
+ * 
+ * @param {Text} form_id 
+ * @param {Array} download_data
+ * @param {Function} callback 
+ */
+var downloadImages = function(form_id, download_data, callback){
+
+  // Retrieve data from IDB
+  idb.getAllData("images", form_id, "inv_id", function(result){
+    console.log('downloadImages result: ', result);
+    if (result.length > 0) {
+      callback(download_data, form_id, result);
+    } else {
+      callback(download_data, form_id, false);
+    }
+  });
+}
+
+compressFiles = function(files, form_id, images = false){
+  // Create zip foldername
+  let zip_filename = form_id + '.zip';
+  var zip = new JSZip();
+  
+  files.forEach((file)=>{
+    zip.file(file['name'], file['content']);
+  })
+
+  if(images){
+    // All images are inside images/ subfolder
+    zip.folder("images");
+
+    // Download each image inside the folder
+    images.forEach((i) => {
+      let name = [i.row_id, i.capture_date.substr(0, 10), i.id];
+      name = name.join('_') + '.' + i.extension;
+      
+      zip.file('images/' + name, urlToPromise(i.src), {binary: true});
+    });
+  }
+
+  console.log('Generate download task...');
+  zip.generateAsync({type: 'blob'}, (metadata) => {
+      console.log(metadata);
+      if(metadata.currentFile) {
+        console.log("Current file = " + metadata.currentFile)
+      }
+  })
+  .then(
+    (blob) => {
+      console.log('Downloading folder...')
+      saveAs(blob, zip_filename);
+    }, (e) => {
+      console.log(e)
+    }
+  );
+}
+
+var downloadImagesByOne = function(){
+  var a = document.createElement("a"); //Create <a>
+  a.href = "data:image/png;base64," + ImageBase64; //Image Base64 Goes here
+  a.download = "Image.png"; //File name Here
+  a.click(); //Downloaded file
 }
 
 // Object with functions to search inside JSON with list of species
@@ -501,8 +610,13 @@ var search = {
 
 // Close the .float-box when user clicks outside its frame
 addEventListener("click", (event) => {
-  console.log(event)
-  if(!event.target.classList.contains('float-box')){
+  // Conditions to not show .float-box
+  // 1. Click outside the box
+  let out_box = !event.target.classList.contains('float-box')
+  // 2. Not click in the buttons that display the boxes
+  let btn_picture = !event.target.id == "img-btn" || event.target.id.length == 0;
+
+  if(out_box && btn_picture){
     document.querySelectorAll('.float-box').forEach((item) => {
       item.style.display = 'none';
     })
