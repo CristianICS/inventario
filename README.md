@@ -5,7 +5,9 @@ PWA (Progressive Web Application) to collect vegetation data at field.
 
 ## todo
 
+- si no existe un dato que no se guarde como 0
 - Cuando se eliminen filas, que es eliminen tambien de la IDB
+- Al eliminar una fila, actualizar el row-id de las filas superiores
 - Cuando no haya datos en una celda el valor no puede ser 0
 - Add an option to catch an image
 - Button to diselect all rows

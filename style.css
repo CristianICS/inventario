@@ -277,9 +277,16 @@ input[type="number"]::-webkit-outer-spin-button
 }
 .saved-box ul
 {
+    line-height: 2em;
     width: 100%;
 }
-
+.saved-box li {
+    display: flex;
+    gap: 15px;
+}
+.saved-box a {
+    text-decoration: underline;
+}
 .picture-box
 {
     overflow: hidden;

@@ -52,7 +52,7 @@
     <div class="subcontent">
         <div class="subtitle">
             <p>Info</p>
-            <p onclick="acordeon('info', this)"><i class="arrow down"></i></p>
+            <p onclick="main.acordeon('info', this)"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-info">
             <table>
@@ -91,9 +91,9 @@
         <div class="subtitle">
             <div style="display: flex; gap: 10px;">
                 <p>Metadatos</p>
-                <img src="icons/save.svg" onclick="saveMetadata()">
+                <img src="icons/save.svg" onclick="metadata.save()">
             </div>
-            <p onclick="acordeon('metadata', this)"><i class="arrow down"></i></p>
+            <p onclick="main.acordeon('metadata', this)"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-metadata">
             <table>
@@ -132,11 +132,11 @@
     <div class="subcontent">
         <div class="subtitle">
             <p>Buscador de especies</p>
-            <p onclick="acordeon('buscador', this)"><i class="arrow down"></i></p>
+            <p onclick="main.acordeon('buscador', this)"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-buscador">
             <p class="search-bar">
-                <input id="searchbar" onkeyup="search.auto()" type="text" name="search">
+                <input id="searchbar" onkeyup="search.species()" type="text" name="search">
                 <img src="icons/cross.svg" onclick="search.clear()">
             </p>
             <ul id="list-holder" class="search-results"></ul>
@@ -148,9 +148,9 @@
         <div class="subtitle">
             <div style="display: flex; gap: 10px;">
                 <p>Ficha</p>
-                <img src="icons/save.svg" onclick="saveForm()">
+                <img src="icons/save.svg" onclick="inv.save()">
             </div>
-            <p onclick="acordeon('ficha', this)"><i class="arrow down"></i></p>
+            <p onclick="main.acordeon('ficha', this)"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-ficha">
             <div class="freeze-table">
@@ -169,51 +169,15 @@
                         <th class="mt2cm-header">Rmen</th>
                         <th class="mt2cm-header">DBH</th>
                     </tr>
-                    <tr data-rowid="1" class="inv-rows" onclick="selectRow(this)">
-                        <td>
-                            <input type="text" id="inv-esp-1" name="esp">
-                        </td>
-                        <td>
-                            <!-- Shows numeric keybord in iOS devices
-                            https://developer.apple.com/documentation/uikit/uiresponder/1621578-keyboardframeenduserinfokey -->
-                            <input type="number" id="inv-n-1" name="N" onchange="writeEsp(this)">
-                        </td>
-                        <td>
-                            <input type="number" id="inv-d-1" name="D">
-                        </td>
-                        <td>
-                            <input type="number" id="inv-di-1" name="di">
-                        </td>
-                        <td>
-                            <input type="number" id="inv-dd-1" name="dd">
-                        </td>
-                        <td>
-                            <input type="number" id="inv-h-1" name="h">
-                        </td>
-                        <td class="lt2cm">
-                            <input type="number" id="inv-dmay-1" name="DM">
-                        </td>
-                        <td class="lt2cm">
-                            <input type="number" id="inv-dmen-1" name="Dm">
-                        </td>
-                        <td class="mt2cm">
-                            <input type="number" id="inv-rmay-1" name="Rmay">
-                        </td>
-                        <td class="mt2cm">
-                            <input type="number" id="inv-rmen-1" name="Rmen">
-                        </td>
-                        <td class="mt2cm">
-                            <input type="number" id="inv-dbh-1" name="DBH">
-                        </td>
-                    </tr>
+                    <script>inv.addRow(1)</script>
                     </tbody>
                 </table>
             </div>
 
             <div class="more">
-                <img src="icons/tick.svg" onclick="removeRow(this)">
-                <img src="icons/picture.svg" onclick="takePicture()" id="img-btn">
-                <img src="icons/plus.svg" onclick="addRow()">
+                <img src="icons/tick.svg" onclick="inv.removeRow(this)">
+                <img src="icons/picture.svg" onclick="inv.takePicture()" id="img-btn">
+                <img src="icons/plus.svg" onclick="inv.addRow()">
             </div>
 
         </div>
@@ -234,17 +198,17 @@ style="display:none;">
         <!-- 1. Choose file -->
         <div class="fileinputs">
             <input class="file" type="file" accept="image/*" name="image" 
-            id="gen-img-file" onchange="previewFile('gen-img-file')">
+            id="gen-img-file" onchange="inv.previewFile('gen-img-file')">
             <div class="fakefile">
                 <button>Choose file</button>
             </div>
         </div>
         <!-- Upload button -->
-        <img src="icons/upload.svg" onclick="digestImage()">
+        <img src="icons/upload.svg" onclick="inv.digestImage()">
         <!-- 2. Take a picture -->
         <div class="fileinputs">
             <input class="file" type="file" accept="image/*" capture="camera"
-            name="image" id="gen-img-picture" onchange="previewFile('gen-img-picture')"
+            name="image" id="gen-img-picture" onchange="inv.previewFile('gen-img-picture')"
             >
             <div class="fakefile" style="right: 0;">
                 <button>Take a picture</button>
