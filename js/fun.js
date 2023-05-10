@@ -91,6 +91,18 @@ var main = {
     // Search species name and write it inside above container
     especie.value = search.filter(Number(n));
 
+  },
+
+  /**
+   * Reset forms and display an alert message
+   * ======================================= 
+   */
+  new() {
+    let msg = "Atenci\u{00F3}n: Si resetea el formulario los cambios que no hayan sido guardados se perder\u{00E1}n. Quieres continuar?"
+    if (confirm(msg)) {
+      metadata.reset();
+      inv.reset();
+    }
   }
 
 }
@@ -561,7 +573,7 @@ var metadata = {
     this.date = document.getElementById('inv-date').value;
     this.p_init = Number(document.getElementById('inv-init').value);
     this.p_end = Number(document.getElementById('inv-end').value);
-    this.commentsmts = document.getElementById('inv-comments').value;
+    this.comments = document.getElementById('inv-comments').value;
   },
 
   /**
@@ -641,7 +653,7 @@ var metadata = {
     this.date = false;
     this.p_init = false;
     this.p_end = false;
-    this.commentsmts = false;
+    this.comments = false;
 
     // Reset values in HTML
     document.getElementById('inv-id').value = "";

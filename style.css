@@ -36,15 +36,12 @@ h1
     text-align: center;
     padding-left: 15px;
 }
-.download
+.head-menu
 {
-    height: 100%;
-}
-.download img
-{
-    /* Set its height equal as parent div */
-    height: 100%;
-    width: auto;
+    display: flex;
+    gap: 15px;
+    padding-right: 15px;
+    text-decoration: underline;
 }
 
 
@@ -279,10 +276,6 @@ input[type="number"]::-webkit-outer-spin-button
 {
     line-height: 2em;
     width: 100%;
-}
-.saved-box li {
-    display: flex;
-    gap: 15px;
 }
 .saved-box a {
     text-decoration: underline;
