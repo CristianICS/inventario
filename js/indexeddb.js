@@ -308,21 +308,50 @@ var idb = {
     },
 
     /**
+     * Remove images from IDB
+     * ========================
+     * 
+     * @param {Array} images Dict of the images to delete 
+     * @param {*} callback 
+     */
+    removeImages(images, callback) {
+      // Start transaction with the IDB
+      const transaction = this.db.transaction(['images'], 'readwrite');
+      
+      // Action to fire when data is removed to the database.
+      transaction.oncomplete = (event) => {callback();};
+      
+      transaction.onerror = (event) => {
+        console.error(`[IDBTransaction error]: ${event.target.error}`);
+        alert("Uups, something went wrong. Try it again!");
+      };
+      
+      // Remove the images linked to this row
+      var img_os = transaction.objectStore('images');
+      images.forEach((img) => {
+        img_os.delete(Number(img.id));
+      });
+
+    },
+
+    /**
      * Remove row from IBD
      * =========================
-     * It is called inside inv.removeRow() function to delete from idb too (if
-     * it exists).
+     * It is called inside inv.removeRow() function to delete a row from idb
      * 
-     * @param {String} id Unique ID which identifies the row inside IDB 
+     * @param {Number} id Unique ID which identifies the row inside IDB 
      * @param {Function} callback 
      */
     removeRow(id, callback) {
       
-      const transaction = this.db.transaction(['rows', 'images'], "readwrite");
+      // Start transaction with the IDB
+      const transaction = this.db.transaction(['rows'], 'readwrite');
       
-      // Action to fire when data is added to the database.
+      // Action to fire when data is removed to the database.
       transaction.oncomplete = (event) => {
-        console.log("Row with id " + id + " is deleted.");
+
+        console.log("Row with id " + id + ": deleted from IDB.");
+        
         callback();
       };
       
@@ -331,40 +360,53 @@ var idb = {
         alert("Uups, something went wrong. Try it again!");
       };
 
-      // Delete selected row
-      const request = transaction.objectStore('rows').delete(Number(id));
-
-      request.onsuccess = (event) => {
-        // Deleted images linked to the row
-        const os = transaction.objectStore('images');
-        const request_img = os.index('row_id').delete(Number(id));
-      }
+      // Lastly, delete selected row
+      const request = transaction.objectStore('rows').delete(id);
     },
 
+    /**
+     * Remove the inv inside IDB
+     * ===========================
+     * Remove all the data stored in the IDB refered with inv_id.
+     * 
+     * @param {String} inv_id 
+     */
     removeInv(inv_id) {
-      // Remove rows from the selected inv
-      const transaction = this.db.transaction(['rows', 'inv_metadata', 'images'], "readwrite");
-      
-      // Action to fire when data is added to the database.
-      transaction.oncomplete = (event) => {
-        console.log("The rows linked with the inv id " + inv_id + " have been deleted.");
-      };
-      
-      transaction.onerror = (event) => {
-        console.error(`[IDBTransaction error]: ${event.target.error}`);
-        alert("Uups, something went wrong. Try it again!");
-      };
-
-      const os_r = transaction.objectStore('rows');
-      const delete_rows = os_r.index('inv_id').delete(inv_id);
-
-      // Remove the inv metadata
-      const os_m = transaction.objectStore('inv_metadata');
-      const delete_metadata = os_m.delete(inv_id);
 
       // Remove images
-      const os_i = transaction.objectStore('images');
-      const delete_images = os_i.index('inv_id').delete(inv_id);
+      this.getAllData('images', inv_id, 'inv_id', (images) => {
+        this.removeImages(images, ()=> {
+          // Remove rows and metadata
+          const transaction = this.db.transaction(['inv_metadata'], 'readwrite');
+
+          // Action to fire when all the data is removed to the database.
+          transaction.oncomplete = (event) => {
+            console.log("Inv data with id " + inv_id + " have been deleted.");
+          };
+          
+          transaction.onerror = (event) => {
+            console.error(`[IDBTransaction error]: ${event.target.error}`);
+            alert("Uups, something went wrong. Try it again!");
+          };
+
+          // Remove metadata
+          transaction.objectStore('inv_metadata').delete(inv_id);
+          
+          // Remove rows
+          this.getAllData('rows', inv_id, 'inv_id', (rows) => {
+            rows.forEach((row) => {
+              this.removeRow(row.id, ()=>{});
+            });
+
+            // Pass a function to reset the data inside the web forms
+            metadata.reset();
+            inv.reset();
+          })
+
+
+        })
+      })
+
     },
 
     /**
@@ -388,7 +430,7 @@ var idb = {
         alert("Uups, something went wrong. Try it again!");
       };
 
-      const objectStore = transaction.objectStore(os);
+      var objectStore = transaction.objectStore(os);
 
       if(!index){
         var request = objectStore.getAll(key);

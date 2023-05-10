@@ -196,23 +196,30 @@ var inv = {
       let dbh = document.getElementById(`inv-dbh-${rowid}`).value;
       let inv_id = document.getElementById('inv-id').value.toUpperCase();
 
-
+      // Sort function that write null if there is no value inside a field
+      let check_null = function(value){
+        if (value == "") {
+          return null;
+        } else {
+          return Number(value);
+        }
+      }
 
       // Store inside a JSON dict with the same keys as IDB rows ObjectStore
       json_data = {
-        id: idbid,
+        id: Number(idbid),
         row_id: Number(rowid),
         inv_id: inv_id,
-        n: Number(n),
-        d: Number(d),
-        di: Number(di),
-        dd: Number(dd),
-        h: Number(h),
-        dmay: Number(dmay),
-        dmen: Number(dmen),
-        rmay: Number(rmay),
-        rmen: Number(rmen),
-        dbh: Number(dbh)
+        n: check_null(n),
+        d: check_null(d),
+        di: check_null(di),
+        dd: check_null(dd),
+        h: check_null(h),
+        dmay: check_null(dmay),
+        dmen: check_null(dmen),
+        rmay: check_null(rmay),
+        rmen: check_null(rmen),
+        dbh: check_null(dbh)
       }
 
       json_rows.push(json_data);
@@ -314,11 +321,15 @@ var inv = {
       if(confirm("Do you want to delete selected row/rows?")){
         for(let i = 0; i < rows.length; i++){
           
-          let id = rows[i].dataset.idbid;
-          idb.removeRow(id, ()=> {
-            // If transaction is completed, delete row
-            rows[i].remove();
-          })
+          let id = Number(rows[i].dataset.idbid);
+          // Get the images associeated with the row
+          idb.getAllData('images', id, 'row_id', (images) => {
+            idb.removeImages(images, () => {
+              console.log("Row with id " + id + ": associated images are deleted from IDB.");
+              // If transaction is completed, delete row
+              idb.removeRow(id, () => {rows[i].remove();})
+            })
+          });
         }
       }
     } else {
@@ -515,6 +526,19 @@ var inv = {
         tr.dataset.idbid = idbid;
       })
     }
+  },
+
+  /**
+   * Reset main form
+   * ================
+   * Clean the inv table and display one blank row.
+   */
+  reset() {
+    // Select all the rows
+    let rows = document.querySelectorAll('.inv-rows');
+    rows.forEach((row) => {row.remove()});
+    // Add the first row
+    this.addRow(1);
   }
 }
 
@@ -598,7 +622,6 @@ var metadata = {
    * @param {json} metadata Dict with the metadata to write which is stored in IDB 
    */
   write(metadata) {
-    console.log(metadata);
     document.getElementById('inv-id').value = metadata['inv_id'];
     document.getElementById('inv-date').value = metadata['date'];
     document.getElementById('inv-init').value = metadata['pinit'];
@@ -606,6 +629,29 @@ var metadata = {
     document.getElementById('inv-comments').value = metadata['comments'];
 
     this.collect();
+  },
+
+  /**
+   * Put in blank the metadata input values
+   * ======================================
+   */
+  reset() {
+    // Reset JSON metadata values
+    this.id = false;
+    this.date = false;
+    this.p_init = false;
+    this.p_end = false;
+    this.commentsmts = false;
+
+    // Reset values in HTML
+    document.getElementById('inv-id').value = "";
+    document.getElementById('inv-date').value = "";
+    document.getElementById('inv-init').value = "";
+    document.getElementById('inv-end').value = "";
+    document.getElementById('inv-comments').value = "";
+
+    // Unblock the ID field
+    document.getElementById('inv-id').removeAttribute('disabled');
   }
 
 }
