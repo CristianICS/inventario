@@ -1,34 +1,118 @@
 class Row {
 
-  constructor(rn) { // Row number
-    
-    this.especie = '<input type="text" id="inv-esp-' + rn + '" name="esp">';
-    this.N = '<input type="number" id="inv-n-' + rn + '" name="N" onchange="main.writeEsp(this)">';
-    this.D = '<input type="number" id="inv-d-' + rn + '" name="D">';
-    this.di = '<input type="number" id="inv-di-' + rn + '" name="di">';
-    this.dd = '<input type="number" id="inv-dd-' + rn + '" name="dd">';
-    this.h = '<input type="number" id="inv-h-' + rn + '" name="h">';
-    this.dmay = '<input type="number" id="inv-dmay-' + rn + '" name="DM">';
-    this.dmen = '<input type="number" id="inv-dmen-' + rn + '" name="Dm">';
-    this.rmay = '<input type="number" id="inv-rmay-' + rn + '" name="rmay">';
-    this.rmen = '<input type="number" id="inv-rmen-' + rn + '" name="rmen">';
-    this.dbh = '<input type="number" id="inv-dbh-' + rn + '" name="dbh">';
+  /**
+   * Construct the Row object
+   * ========================
+   * 
+   * @param {Int} row_number The row position inside main form
+   * @param {String} inv_id Main table Unique identifier 
+   * @param {null || Int} row_id Row unique identifier 
+   * @param {JSON} content Row properties (especie, n, d, di, dd, h, dmay, dmen, rmay, rmen, dbh) 
+   */
+  constructor(row_number, inv_id, row_id = null, content = false) {
+
+    // Add blank properties if the row is empty
+    if (!content) {
+      var content = {
+        especie: null,
+        n: null,
+        d: null,
+        di: null,
+        dd: null,
+        h: null,
+        dmay: null,
+        dmen: null,
+        rmay: null,
+        rmen: null,
+        dbh: null
+      };
+    }
+
+    this.id = row_id ?? new Date().getTime(); // Unique identifier
+    this.row_number = row_number;
+    this.inv_id = inv_id; 
+    this.content = content;
   }
 
+  /**
+   * Create row in HTML format
+   * ==========================
+   * 
+   * <tr> ROW
+   *  <td><input> Row values (n values = n columns)
+   * 
+   * @returns {HTMLObject}
+   */
   createHTML(){
-    let new_r = [];
-    let elements = Object.values(this);
-    for(var i = 0; i < elements.length; i++){
-      // Print 5 last column with background color
-      if (i >= 6 & i < 8){
-        new_r.push('<td class="lt2cm">' + elements[i] + '</td>');
-      } else if (i >= 8) {
-        new_r.push('<td class="mt2cm">' + elements[i] + '</td>');
-      } else {
-        new_r.push('<td>' + elements[i] + '</td>');
+    
+    // Row number
+    let rn = this.row_number;
+
+    // Create new tr element which contains the <td> columns
+    let newr = document.createElement('tr');
+    // Add the row's unique ID
+    newr.id = String(this.id);
+    // Add style 
+    newr.classList.add('inv-rows');
+    // Add row_number
+    newr.dataset.rownumber = this.row_number;
+    // Add method to select the row
+    newr.setAttribute("onclick", "inv.selectRow(this)");
+
+    // Define the td row input elements (HTML format)
+    let input_elements = [
+      {type: 'text', id: 'inv-esp-' + rn, name: 'esp', value: this.content.especie},
+      {type: 'number', id: 'inv-n-' + rn, name: 'N', value: this.content.n, onchange: "main.writeEsp(this)"},
+      {type: 'number', id: 'inv-d-' + rn, name: 'D', value: this.content.d},
+      {type: 'number', id: 'inv-di-' + rn, name: 'di', value: this.content.di},
+      {type: 'number', id: 'inv-dd-' + rn, name: 'dd', value: this.content.dd},
+      {type: 'number', id: 'inv-h-' + rn, name: 'h', value: this.content.h},
+      {type: 'number', id: 'inv-dmay-' + rn, name: 'DM', value: this.content.dmay},
+      {type: 'number', id: 'inv-dmen-' + rn, name: 'Dm', value: this.content.dmen},
+      {type: 'number', id: 'inv-rmay-' + rn, name: 'rmay', value: this.content.rmay},
+      {type: 'number', id: 'inv-rmen-' + rn, name: 'rmen', value: this.content.rmen},
+      {type: 'number', id: 'inv-dbh-' + rn, name: 'dbh', value: this.content.dbh}
+    ];
+
+    for(var i = 0; i < input_elements.length; i++){
+      
+      let ie = input_elements[i] // input element
+
+      // Create input element in HTML format
+      let inp = document.createElement('input');
+      inp.type = ie.type;
+      inp.id = ie.id;
+      inp.name = ie.name;
+      inp.value = ie.value;
+      if (ie.onchange) {
+        inp.setAttribute('onchange', ie.onchange);
       }
+      
+      // Create td object
+      let td = document.createElement('td');
+      
+      // Print 5 last columns with background color
+      if (i >= 6 & i < 8){
+
+        // Predefined class
+        td.classList.add('lt2cm');
+        
+      } else if (i >= 8) {
+
+        td.classList.add('mt2cm');
+
+      }
+
+      // Insert the input value
+      td.appendChild(inp);
+
+      // Append <td> inside <tr>
+      newr.appendChild(td);
+
     }
-    return(new_r.join(""));
+
+    return(newr);
+
   }
 }
 
@@ -74,17 +158,13 @@ var main = {
    * that match with N ID and write its name inside 'Especie' row. 
    * 
    * @param {HTMLElement} selected_element input element inside a td tag
-   * @param {String} rid Use when the function is called inside inv.write
-   * @param {String} n veg code uses when the function is called inside inv.write
    */
   writeEsp(selected_element, rid = false, n = false){
     
-    if (!rid & !n) {
-      // Get row ID
-      var rid = selected_element.id.split('-')[2];
-      // Get N
-      var n = selected_element.value;
-    }
+    // Get row ID
+    var rid = selected_element.id.split('-')[2];
+    // Get N
+    var n = selected_element.value;
 
     // Select the input inside 'Especie' row
     let especie = document.getElementById('inv-esp-' + rid);
@@ -175,38 +255,39 @@ var search = {
 var inv = {
 
   /**
-   * Get data from inv rows
+   * Get data from main table (inv) rows
    * =================================
    *
-   * @returns Row data in JSON
+   * @param {String} inv_id Main form ID. It is mandatory
+   * @returns Row class object (prepared to insert inside IDB)
    */
-  collect(){
+  collect(inv_id){
 
-    // Get all HTML inv rows
+    // Get all HTML rows
     let html_rows = document.querySelectorAll('.inv-rows');
-    // Store rows in JSON format
+    // Store Row class objects
     let json_rows = [];
 
-    // Transform all rows in JSON
+    // Create Row objects
     for(let i = 0; i < html_rows.length; i ++){
       
-      // Get row id from data-id attribute
-      let rowid = html_rows[i].dataset.rowid;
+      // Get row_number id from data-id attribute
+      let rn = Number(html_rows[i].dataset.rownumber);
       // Get the unique id to store the row inside IDB
-      let idbid = html_rows[i].dataset.idbid;
+      let id = Number(html_rows[i].id);
       
-      // Get row data
-      let n = document.getElementById(`inv-n-${rowid}`).value;
-      let d = document.getElementById(`inv-d-${rowid}`).value;
-      let di = document.getElementById(`inv-di-${rowid}`).value;
-      let dd = document.getElementById(`inv-dd-${rowid}`).value;
-      let h = document.getElementById(`inv-h-${rowid}`).value;
-      let dmay = document.getElementById(`inv-dmay-${rowid}`).value;
-      let dmen = document.getElementById(`inv-dmen-${rowid}`).value;
-      let rmay = document.getElementById(`inv-rmay-${rowid}`).value;
-      let rmen = document.getElementById(`inv-rmen-${rowid}`).value;
-      let dbh = document.getElementById(`inv-dbh-${rowid}`).value;
-      let inv_id = document.getElementById('inv-id').value.toUpperCase();
+      // Get row content
+      let especie = document.getElementById(`inv-esp-${rn}`).value; 
+      let n = document.getElementById(`inv-n-${rn}`).value;
+      let d = document.getElementById(`inv-d-${rn}`).value;
+      let di = document.getElementById(`inv-di-${rn}`).value;
+      let dd = document.getElementById(`inv-dd-${rn}`).value;
+      let h = document.getElementById(`inv-h-${rn}`).value;
+      let dmay = document.getElementById(`inv-dmay-${rn}`).value;
+      let dmen = document.getElementById(`inv-dmen-${rn}`).value;
+      let rmay = document.getElementById(`inv-rmay-${rn}`).value;
+      let rmen = document.getElementById(`inv-rmen-${rn}`).value;
+      let dbh = document.getElementById(`inv-dbh-${rn}`).value;
 
       // Sort function that write null if there is no value inside a field
       let check_null = function(value){
@@ -217,11 +298,9 @@ var inv = {
         }
       }
 
-      // Store inside a JSON dict with the same keys as IDB rows ObjectStore
-      json_data = {
-        id: Number(idbid),
-        row_id: Number(rowid),
-        inv_id: inv_id,
+      // Init Row
+      let nrow = new Row(rn, inv_id, id, {
+        especie: especie,
         n: check_null(n),
         d: check_null(d),
         di: check_null(di),
@@ -232,9 +311,9 @@ var inv = {
         rmay: check_null(rmay),
         rmen: check_null(rmen),
         dbh: check_null(dbh)
-      }
+      })
 
-      json_rows.push(json_data);
+      json_rows.push(nrow);
     }
 
     return(json_rows);
@@ -245,22 +324,23 @@ var inv = {
    * ==========================
    */
   save(){
+
     // Check the form ID
-    let form_id = document.getElementById('inv-id').value.toUpperCase();
-    if(form_id.length == 0){
-      alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+    let inv_id = metadata.inv_id;
+    if(inv_id.length == 0){
+      alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o. Incluye uno y guardalo para continuar.");
       return false;
     }
 
     // 2. Rows
-    let json_rows = this.collect();
+    let json_rows = this.collect(inv_id);
 
     // Add data into the IndexedDB
     idb.addData(json_rows, 'rows', 'id');
   },
 
   /**
-   * Count the number of rows in inventario
+   * Count the number of rows in main table
    * ===========================================
    * @returns Number of rows
    */
@@ -271,35 +351,30 @@ var inv = {
   },
   
   /**
-   * Create new Row
-   * ===============
+   * Create an empty new Row
+   * ========================
    * Initialize a new Row class and include it inside the main form tr element.
    * 
    * The optional argument is passed when the function is fired inside
    * the upload function.
    * 
-   * @param {Strin} rid Row id
+   * @param {Int} rn Row number / The row position inside main table
    */
-  addRow(rid = false){
+  addRow(rn = false){
     
-    if(!rid) {
-      // Count existing rows and sum 1 to get the new id
-      var rid = this.countRows() + 1;
+    let inv_id = metadata.inv_id;
+    if (inv_id.length == 0) {
+      alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o. Escribe un valor y guardalo para continuar.");
+      return false;
     }
-    // Create new tr element which contains the row
-    let newr = document.createElement('tr');
-    // Add an unique ID to store row inside IDB
-    var idbid = new Date().getTime();
-    newr.dataset.idbid = String(idbid);
-    // Customize element
-    newr.classList.add('inv-rows');
-    // Add id row
-    newr.dataset.rowid = rid;
-    newr.setAttribute("onclick", "inv.selectRow(this)");
 
-    // Add row contet
-    let row_content = new Row(rid).createHTML();
-    newr.innerHTML = row_content;
+    if(!rn) {
+      // Count existing rows and sum 1 to get the new id
+      var rn = this.countRows() + 1;
+    }
+
+    // Create new tr element which contains the row
+    let newr = new Row(rn, inv_id).createHTML();
 
     // Append row to the table
     let table = document.getElementById("inventario");
@@ -326,24 +401,47 @@ var inv = {
    * must contain .selected class.
    */
   removeRow(){
+
     // Get selected row/rows
     let rows = document.querySelectorAll('.selected');
+
     // Remove each row
     if(rows.length > 0){
+      
       if(confirm("Do you want to delete selected row/rows?")){
         for(let i = 0; i < rows.length; i++){
           
-          let id = Number(rows[i].dataset.idbid);
+          let id = Number(rows[i].id);
+
           // Get the images associeated with the row
           idb.getAllData('images', id, 'row_id', (images) => {
+            
+            // Remove images
             idb.removeImages(images, () => {
+              
               console.log("Row with id " + id + ": associated images are deleted from IDB.");
-              // If transaction is completed, delete row
-              idb.removeRow(id, () => {rows[i].remove();})
+              
+              // If transaction is completed, delete the row
+              idb.removeRow(id, () => {
+                
+                let rn = Number(rows[i].dataset.rownumber);
+                console.log('Start RN: ', rn);
+
+                // Decrease the row numbers
+                this.updateRowNumbers(rn);
+                
+                
+
+                rows[i].remove();
+
+              });
+
             })
           });
+
         }
       }
+
     } else {
       alert("Select row(s) to delete.")
     }
@@ -464,6 +562,7 @@ var inv = {
     } else {
       // If compress option is not selected, store original image
       img.src = src_original;
+      img.extension = null;
     }
 
     // Get the byte size of compressed image
@@ -474,22 +573,22 @@ var inv = {
 
     // Add ID constructed by the inserted image time in miliseconds since midnight, 1 Jan 1970
     img.id = Number(new Date().getTime());
-    img.capture_date = new Date(img.id).toJSON();
+    img.ingest_date = new Date(img.id).toJSON();
 
     // Select the row_id linked with the image
     let row = document.querySelectorAll('.selected');
     if(row.length == 1){
       // Get the unique key ID
-      img.row_id = Number(row[0].dataset.idbid);
+      img.row_id = Number(row[0].id);
     } else {
       alert(`Atenci\u{00F3}n: Selecciona la fila (solo una) a la que a\u{00F1}adir la imagen.`);
       return false;
     }
 
     // Save the form ID
-    let inv_id = document.getElementById('inv-id').value.toUpperCase();
+    let inv_id = metadata.inv_id;
     if(inv_id.length == 0){
-      alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o.");
+      alert("Atenci\u{00F3}n: El ID del inventario no puede estar vac\u{00ED}o. Agrega un valor y guardalo para poder continuar.");
       return false;
     } else {
       img.inv_id = inv_id
@@ -500,45 +599,103 @@ var inv = {
   },
 
   /**
-   * Write stored metadata
+   * Write rows from IDB
    * ========================
+   * Display inside "Ficha" div the rows stored in IDB.
+   * 
    * It is called inside idb.uploadInv() function.
    * 
    * @param {json} rows Dict with the rows to write which are stored in IDB 
    */
   write(rows) {
+
     if (rows.length > 0) {
       
+      // Main table
+      let table = document.getElementById("inventario");
+
       // Remove existing rows
-      let ancient_rows = document.querySelectorAll('.inv-rows');
-      ancient_rows.forEach((r)=>{r.remove()});
+      this.reset();
 
-      rows.forEach((row) => {
-        let rowid = row.row_id;
-        let idbid = row.id;
+      // Init each row stored in IDB and append inside main table
+      rows.forEach((r) => {
 
+        let rown = r.row_number;
+        let id = r.id;
+        
         // Create a new row
-        this.addRow(rowid);
+        let newr = new Row(rown, r['inv_id'], id, {
+          especie: r.content['especie'],
+          n: r.content['n'],
+          d: r.content['d'],
+          di: r.content['di'],
+          dd: r.content['dd'],
+          h: r.content['h'],
+          dmay: r.content['dmay'],
+          dmen: r.content['dmen'],
+          rmay: r.content['rmay'],
+          rmen: r.content['rmen'],
+          dbh: r.content['dbh']
+        }).createHTML();
 
-        // Add stored elements
-        main.writeEsp(false, rowid, row['n']);
-        document.getElementById(`inv-n-${rowid}`).value = row['n'];
-        document.getElementById(`inv-d-${rowid}`).value = row['d'];
-        document.getElementById(`inv-di-${rowid}`).value = row['di'];
-        document.getElementById(`inv-dd-${rowid}`).value = row['dd'];
-        document.getElementById(`inv-h-${rowid}`).value = row['h'];
-        document.getElementById(`inv-dmay-${rowid}`).value = row['dmay'];
-        document.getElementById(`inv-dmen-${rowid}`).value = row['dmen'];
-        document.getElementById(`inv-rmay-${rowid}`).value = row['rmay'];
-        document.getElementById(`inv-rmen-${rowid}`).value = row['rmen'];
-        document.getElementById(`inv-dbh-${rowid}`).value = row['dbh'];
+        // Append row to the table
+        table.appendChild(newr);
 
-        // Add unique id to the row
-        let tr = document.getElementById(`inv-n-${rowid}`).parentElement.parentElement;
-        tr.dataset.idbid = idbid;
       })
     }
   },
+
+  /**
+   * Decrease row numbers
+   * ===================================
+   * Function called inside removeRows() to downgrade rownumbers.
+   * Decrease all rows above input row number.
+   * 
+   * @param {Int} row_number Deleted row number 
+   */
+  updateRowNumbers(row_number) {
+
+    // Select all rows
+    let rows = document.querySelectorAll(".inv-rows");  
+    
+    rows.forEach((r) => {
+      // Downgraded row number
+      let ancient_rn = Number(r.dataset.rownumber);
+
+      if (ancient_rn > row_number) {
+
+        let new_rn = ancient_rn - 1; 
+
+        console.log("Ancient RN: ", ancient_rn);
+        console.log("New RN: ", new_rn);
+
+        // Update row number inside the ID inside row's ids
+        document.getElementById("inv-esp-" + ancient_rn).id = "inv-esp-" + new_rn; 
+        document.getElementById("inv-n-" + ancient_rn).id = "inv-n-" + new_rn; 
+        document.getElementById("inv-d-" + ancient_rn).id = "inv-d-" + new_rn; 
+        document.getElementById("inv-di-" + ancient_rn).id = "inv-di-" + new_rn; 
+        document.getElementById("inv-dd-" + ancient_rn).id = "inv-dd-" + new_rn; 
+        document.getElementById("inv-h-" + ancient_rn).id = "inv-h-" + new_rn; 
+        document.getElementById("inv-dmay-" + ancient_rn).id = "inv-dmay-" + new_rn; 
+        document.getElementById("inv-dmen-" + ancient_rn).id = "inv-dmen-" + new_rn; 
+        document.getElementById("inv-rmay-" + ancient_rn).id = "inv-rmay-" + new_rn; 
+        document.getElementById("inv-rmen-" + ancient_rn).id = "inv-rmen-" + new_rn; 
+        document.getElementById("inv-dbh-" + ancient_rn ).id = "inv-dbh-" + new_rn;
+        
+        // Update dataset from parent row element tr
+        r.dataset.rownumber = new_rn;
+
+        // Update row number inside DB
+        idb.getAllData('rows', Number(r.id), false, (row) => {
+          let new_r = row[0];
+          new_r.row_number = new_rn;
+          idb.addData([new_r], 'rows', 'id');
+        });
+      }
+    });
+
+  },
+
 
   /**
    * Reset main form
@@ -548,16 +705,14 @@ var inv = {
   reset() {
     // Select all the rows
     let rows = document.querySelectorAll('.inv-rows');
-    rows.forEach((row) => {row.remove()});
-    // Add the first row
-    this.addRow(1);
+    rows.forEach((r) => {r.remove()});
   }
 }
 
 // Object to store functions related with inv metadata
 var metadata = {
 
-  id: false,
+  inv_id: false,
   date: false,
   p_init: false,
   p_end: false,
@@ -569,7 +724,7 @@ var metadata = {
    * @returns Metadata in JSON
    */
   collect(){
-    this.id = document.getElementById('inv-id').value.toUpperCase();
+    this.inv_id = document.getElementById('inv-id').value.toUpperCase();
     this.date = document.getElementById('inv-date').value;
     this.p_init = Number(document.getElementById('inv-init').value);
     this.p_end = Number(document.getElementById('inv-end').value);
@@ -609,15 +764,15 @@ var metadata = {
       this.blockInputs();
 
       let data = {
-        inv_id: this.id.toUpperCase(),
+        inv_id: this.inv_id,
         date: this.date,
-        pinit: this.p_init,
-        pend: this.p_end,
+        p_init: this.p_init,
+        p_end: this.p_end,
         comments: this.comments
       }
 
       // prevent to add blank metadata ID
-      if(data.inv_id.length > 0){
+      if(data['inv_id'].length > 0){
         // Store data inside IDB
         idb.addData([data], 'inv_metadata', 'inv_id');
       } else {
@@ -636,20 +791,20 @@ var metadata = {
   write(metadata) {
     document.getElementById('inv-id').value = metadata['inv_id'];
     document.getElementById('inv-date').value = metadata['date'];
-    document.getElementById('inv-init').value = metadata['pinit'];
-    document.getElementById('inv-end').value = metadata['pend'];
+    document.getElementById('inv-init').value = metadata['p_init'];
+    document.getElementById('inv-end').value = metadata['p_end'];
     document.getElementById('inv-comments').value = metadata['comments'];
 
     this.collect();
   },
 
   /**
-   * Put in blank the metadata input values
+   * Make empty the metadata input values
    * ======================================
    */
   reset() {
     // Reset JSON metadata values
-    this.id = false;
+    this.inv_id = false;
     this.date = false;
     this.p_init = false;
     this.p_end = false;
@@ -760,7 +915,7 @@ var download_data = {
         link.click(); // This will download the data
         */
 
-        // 2. EXPORT INV ROWS
+        // 2. EXPORT ROWS
         idb.getAllData("rows", inv_id, 'inv_id', function(result){
 
           if(result.length > 0){
@@ -780,7 +935,7 @@ var download_data = {
             link.click(); // This will download the data
             */
 
-            // Prepare data to download
+            // Prepare data to download: write filename and file content
             let downloaded_data = [
               {'name': 'inventario_' + inv_id + '.csv', 'content': csvContent_form},
               {'name': 'metadatos_' + inv_id + '.csv', 'content': csvContent_metadata}
@@ -820,6 +975,8 @@ var download_data = {
   /**
    * Compress csv and images 
    * =========================
+   * Add data inside a ZIP folder.
+   * 
    * @param {*} files 
    * @param {*} inv_id
    * @param {*} images 
@@ -835,14 +992,17 @@ var download_data = {
 
     if(images){
       // All images are inside images/ subfolder
-      zip.folder("images");
+      // zip.folder("images");
+      
+      // Get the row number
+      let rnumber = document.getElementById(i.row_id).dataset.rownumber
 
       // Download each image inside the folder
       images.forEach((i) => {
-        let name = [i.row_id, i.capture_date.substr(0, 10), i.id];
+        let name = [i.rnumber, i.capture_date.substr(0, 10), i.id];
         name = name.join('_') + '.' + i.extension;
 
-        zip.file('images/' + name, download_data.urlToPromise(i.src), {binary: true});
+        zip.file(name, download_data.urlToPromise(i.src), {binary: true});
       });
     }
 

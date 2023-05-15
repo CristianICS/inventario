@@ -48,11 +48,11 @@ var idb = {
           });
 
           // Create an index to search rows by form id. We can have duplicates
-          // so we can't use a unique index.
+          // so we can't use an unique index.
           r_objectStore.createIndex("inv_id", "inv_id", { unique: false });
 
-          // Create an index to search by row_id, we can have duplicates too
-          r_objectStore.createIndex("row_id", "row_id", { unique: false });
+          // Create an index to search by row_number, we can have duplicates too
+          r_objectStore.createIndex("row_number", "row_number", { unique: false });
         }
 
         // 2. Create table to store form metadata
@@ -69,9 +69,14 @@ var idb = {
           });
 
           // Create an index to search images by form id. We have duplicates
-          // so we can't use a unique index.
+          // so we can't use an unique index.
           i_objectStore.createIndex("inv_id", "inv_id", { unique: false });
-          // Create an index to search by row_id, we can have duplicates too
+
+          // Create an index to search by row_number, we can have duplicates too
+          i_objectStore.createIndex("row_number", "row_number", { unique: false });
+
+          // Index to search by row_id to search images by row and downgrade the
+          // row number
           i_objectStore.createIndex("row_id", "row_id", { unique: false });
         }
       }
@@ -159,155 +164,6 @@ var idb = {
     },
 
     /**
-     * Add metadata inside Indexed DB
-     * ===================================
-     * Put inv metadata into IndexedDB, i.e. **with replace**. If data's key
-     * match with an existing DB key update the data with the new one.
-     *
-     * @param {Array} data Array with JSON objects [{...}]
-     * @param {Text} os: Object Store's name where data is loaded
-     * @param {Text} key: The data's id key to start a IDB get transaction
-     *
-     */
-    addMetadata(data_array, os, key, form_id = false){
-
-      const transaction = this.db.transaction([os], "readwrite");
-
-      // Action to start when data is added to the database.
-      transaction.oncomplete = (event) => {
-          alert("Data is saved!");
-      };
-
-      transaction.onerror = (event) => {
-        console.error(`[IDBTransaction error]: ${event.target.error}`);
-        alert("Uups, something went wrong. Try it again!");
-      };
-
-      const objectStore = transaction.objectStore(os);
-
-      for (let i = 0; i < data_array.length; i++) {
-        
-        const data = data_array[i];
-        
-        // Check if data is already inside IndexedDB
-        const request_get = objectStore.get(data[key]);
-
-        request_get.onerror = (event) => {
-          console.error(`[IDBGetTransaction error]: ${event.target.error}`);
-        };
-
-        request_get.onsuccess = (event) => {
-
-          // Put updated data back into the database.
-          // Note that the add() function requires that no object
-          // already be in the database with the same key.
-          const request_update = objectStore.put(data);
-
-          request_update.onerror = (event) => {
-            console.error(`[IDBPut request error]: ${event.target.error}`);
-          };
-          request_update.onsuccess = (event) => {
-            console.log(`Saved item with key ${event.target.result}`);
-          };
-
-        };
-      }
-    },
-
-    /**
-     * Add inv rows or images to IDB
-     * ===============================
-     * - If row_id/img_id from inserted data is not inside IDB: add()
-     * - If row_id is inside IDB:
-     *    + If inserted row[inv_id] == idb row['inv_id']: push() -> update
-     *    + Else: add() -> the row_id is inside IDB but it does not link with the
-     * inv_id from pending to insert's row.
-     * 
-     * @param {Array} data_array 
-     * @param {Text} os Object Store from the data is retrieved 
-     */
-    addInvData(data_array, os) {
-
-      const transaction = this.db.transaction([os], "readwrite");
-      
-      // Action to fire when data is added to the database.
-      transaction.oncomplete = (event) => {
-        alert("Data is saved!");
-      };
-      
-      transaction.onerror = (event) => {
-        console.error(`[IDBTransaction error]: ${event.target.error}`);
-        alert("Uups, something went wrong. Try it again!");
-      };
-
-      // Get objectStore
-      const objectStore = transaction.objectStore(os);
-
-      // Iterate all rows/images
-      for (let i = 0; i < data_array.length; i++) {
-        
-        const data = data_array[i];
-        
-        // Get RowIndex
-        const idbRowIndex = objectStore.index('row_id');
-        
-        // Check if the pending to store's data ID is inside IDB
-        const request_get = idbRowIndex.get(data['row_id']);
-
-        request_get.onerror = (event) => {
-          console.error(`[IDBGetTransaction error]: ${event.target.error}`);
-        };
-
-        request_get.onsuccess = (event) => {
-
-          const requested_data = request_get.result;
-        
-          // When data is not inside IDB - get() method returns 'undefined'
-          if(typeof requested_data === 'undefined') {
-
-            // Add data into IDB
-            const request_add = objectStore.add(data);
-
-            request_add.onerror = (event) => {
-              console.error(`[IDBPut request error]: ${event.target.error}`);
-            };
-            request_add.onsuccess = (event) => {
-              console.log(`Saved item with key ${event.target.result}`);
-            };
-          }
-          // IDB contains a data with the same row_id, so
-          // If both are in the same inv
-          else if (data['inv_id'] == requested_data['inv_id']) {
-
-            // Update data - Write the same ID to update the one in the IDB
-            const updated_data = data;
-            updated_data['id'] = requested_data['id'];
-            
-            const request_update = objectStore.put(data);
-
-            request_update.onerror = (event) => {
-              console.error(`[IDBPut request error]: ${event.target.error}`);
-            };
-            request_update.onsuccess = (event) => {
-              console.log(`Saved item with key ${event.target.result}`);
-            };
-              
-          } else {
-            // Add data
-            const request_add2 = objectStore.add(data);
-
-            request_add2.onerror = (event) => {
-              console.error(`[IDBPut request error]: ${event.target.error}`);
-            };
-            request_add2.onsuccess = (event) => {
-              console.log(`Saved item with key ${event.target.result}`);
-            };
-          }
-        };
-      }
-    },
-
-    /**
      * Remove images from IDB
      * ========================
      * 
@@ -329,7 +185,7 @@ var idb = {
       // Remove the images linked to this row
       var img_os = transaction.objectStore('images');
       images.forEach((img) => {
-        img_os.delete(Number(img.id));
+        img_os.delete(img.id);
       });
 
     },
@@ -372,40 +228,43 @@ var idb = {
      * @param {String} inv_id 
      */
     removeInv(inv_id) {
+      if (confirm("Estas seguro de eliminar el inventario?")){
 
-      // Remove images
-      this.getAllData('images', inv_id, 'inv_id', (images) => {
-        this.removeImages(images, ()=> {
-          // Remove rows and metadata
-          const transaction = this.db.transaction(['inv_metadata'], 'readwrite');
-
-          // Action to fire when all the data is removed to the database.
-          transaction.oncomplete = (event) => {
-            console.log("Inv data with id " + inv_id + " have been deleted.");
-          };
-          
-          transaction.onerror = (event) => {
-            console.error(`[IDBTransaction error]: ${event.target.error}`);
-            alert("Uups, something went wrong. Try it again!");
-          };
-
-          // Remove metadata
-          transaction.objectStore('inv_metadata').delete(inv_id);
-          
-          // Remove rows
-          this.getAllData('rows', inv_id, 'inv_id', (rows) => {
-            rows.forEach((row) => {
-              this.removeRow(row.id, ()=>{});
-            });
-
-            // Pass a function to reset the data inside the web forms
-            metadata.reset();
-            inv.reset();
+        // Remove images
+        this.getAllData('images', inv_id, 'inv_id', (images) => {
+          this.removeImages(images, ()=> {
+            // Remove rows and metadata
+            const transaction = this.db.transaction(['inv_metadata'], 'readwrite');
+  
+            // Action to fire when all the data is removed to the database.
+            transaction.oncomplete = (event) => {
+              console.log("Inv data with id " + inv_id + " have been deleted.");
+            };
+            
+            transaction.onerror = (event) => {
+              console.error(`[IDBTransaction error]: ${event.target.error}`);
+              alert("Uups, something went wrong. Try it again!");
+            };
+  
+            // Remove metadata
+            transaction.objectStore('inv_metadata').delete(inv_id);
+            
+            // Remove rows
+            this.getAllData('rows', inv_id, 'inv_id', (rows) => {
+              rows.forEach((row) => {
+                this.removeRow(row.id, ()=>{});
+              });
+  
+              // Pass a function to reset the data inside the web forms
+              metadata.reset();
+              inv.reset();
+            })
+  
+  
           })
-
-
         })
-      })
+        
+      }
 
     },
 
