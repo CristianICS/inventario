@@ -202,8 +202,13 @@ var search = {
     let search_val = document.getElementById('searchbar').value;
     search_val = search_val.toLowerCase();
 
-    let searchField = "especie";
-
+    // Check if the inserted data is a code or a specie
+    if (Number(search_val) > 0) {
+      var searchField = "N";
+    } {
+      var searchField = "especie";
+    }
+    
     // HTML element to store the dropdown
     let div = document.querySelector('#list-holder');
     div.innerHTML = ""; // Reset prior search
