@@ -125,15 +125,17 @@ var main = {
    * The APP frame is divided between some subcontent blocks. This function
    * expand/collapse each of these blocks.
    * 
-   * The function is inserted in HTML subcontend block arrows, inside its
+   * The function is inserted in HTML subcontend block arrows and divs, inside its
    * 'onclick' attribute.
    * 
-   * @param {String} id Identifier from DIV to collapse/expand
-   * @param {HTMLElement} arrow Arrow html object
+   * @param {String} id Identifier from DIV to collapse/expand and arrow
    */
-  acordeon(id, arrow){
+  acordeon(id){
     // Get div which info will collapse/expand
     let div = document.getElementById('sub-' + id);
+    // Get arrow which aspect is modified
+    let arrow = document.getElementById('arrow-' + id); 
+
     if (div.classList.contains('expand')){
      
       // COLLAPSE
@@ -199,27 +201,35 @@ var search = {
   species(){
 
     // Get the species name tap by the user
-    let search_val = document.getElementById('searchbar').value;
-    search_val = search_val.toLowerCase();
-
-    // Check if the inserted data is a code or a specie
-    if (Number(search_val) > 0) {
-      var searchField = "N";
-    } {
-      var searchField = "especie";
-    }
+    var search_val = document.getElementById('searchbar').value;
     
     // HTML element to store the dropdown
     let div = document.querySelector('#list-holder');
     div.innerHTML = ""; // Reset prior search
     
+    // When user remove the values, delete the results in HTML page
+    if (search_val == "") {
+      this.clear();
+      return;
+    }
+
     // Iterate through species JSON to search one by one
     for (i = 0; i < listado_especies.length; i++) {
+      
       // Species to compare
       let species = listado_especies[i];
 
+      // Check if the inserted data is a code or a specie
+      if (Number(search_val) > 0) {
+        search_val = Number(search_val);
+        var condition = species['N'] == search_val;
+      } else {
+        search_val = search_val.toLowerCase();
+        var condition = species['especie'].toLowerCase().includes(search_val);
+      }
+
       // When the species contain the target string insert it inside the HTML dropdown
-      if (species[searchField].toLowerCase().includes(search_val)) {
+      if (condition) {
         const elem = document.createElement("li")
         elem.innerHTML = `${species.N} - ${species.especie}`
         div.appendChild(elem)

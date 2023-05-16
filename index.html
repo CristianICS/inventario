@@ -55,9 +55,9 @@
 
     <!-- Informacion sobre el estado de la APP -->
     <div class="subcontent">
-        <div class="subtitle">
+        <div class="subtitle" onclick="main.acordeon('info')">
             <p>Info</p>
-            <p onclick="main.acordeon('info', this)"><i class="arrow down"></i></p>
+            <p id="arrow-info" onclick="main.acordeon('info')"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-info">
             <table>
@@ -93,12 +93,12 @@
 
     <!-- Metadatos del inventario -->
     <div class="subcontent">
-        <div class="subtitle">
+        <div class="subtitle" onclick="main.acordeon('metadata')">
             <div style="display: flex; gap: 10px;">
                 <p>Metadatos</p>
                 <img src="icons/save.svg" onclick="metadata.save()">
             </div>
-            <p onclick="main.acordeon('metadata', this)"><i class="arrow down"></i></p>
+            <p id="arrow-metadata" onclick="main.acordeon('metadata')"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-metadata">
             <table>
@@ -135,9 +135,9 @@
 
     <!-- Buscador de especie -->
     <div class="subcontent">
-        <div class="subtitle">
+        <div class="subtitle" onclick="main.acordeon('buscador')">
             <p>Buscador de especies</p>
-            <p onclick="main.acordeon('buscador', this)"><i class="arrow down"></i></p>
+            <p id="arrow-buscador" onclick="main.acordeon('buscador')"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-buscador">
             <p class="search-bar">
@@ -150,12 +150,12 @@
 
     <!-- Inventario -->
     <div class="subcontent">
-        <div class="subtitle">
+        <div class="subtitle" onclick="main.acordeon('ficha')">
             <div style="display: flex; gap: 10px;">
                 <p>Ficha</p>
                 <img src="icons/save.svg" onclick="inv.save()">
             </div>
-            <p onclick="main.acordeon('ficha', this)"><i class="arrow down"></i></p>
+            <p id="arrow-ficha" onclick="main.acordeon('ficha')"><i class="arrow down"></i></p>
         </div>
         <div class="tbox" id="sub-ficha">
             <div class="freeze-table">
