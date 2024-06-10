@@ -9,7 +9,7 @@ const APP_STATIC_RESOURCES = [
     "/app.js",
     "/listado_especies.js",
     "/manifest.json",
-    "/icons/logo.svg"
+    "favicon.svg"
 ];
 
 // The install event happens when the app is used for the first time,
