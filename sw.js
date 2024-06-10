@@ -3,14 +3,15 @@ const VERSION = "v1";
 const CACHE_NAME = `forest-inventory-${VERSION}`;
 // The static resources that the app needs to function.
 const APP_STATIC_RESOURCES = [
-    "/inventario",
-    "/inventario/index.html",
-    "/inventario/style.css",
-    "/inventario/app.js",
-    "/inventario/listado_especies.js",
-    "/inventario/manifest.json",
-    "/inventario/logo.svg",
-    "/inventario/favicon.ico"
+  "/",
+  "/inventario",
+  "/inventario/index.html",
+  "/inventario/style.css",
+  "/inventario/app.js",
+  "/inventario/listado_especies.js",
+  "/inventario/manifest.json",
+  // "/inventario/logo.svg",
+  "/inventario/favicon.ico"
 ];
 
 // The install event happens when the app is used for the first time,
