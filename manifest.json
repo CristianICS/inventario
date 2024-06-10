@@ -9,7 +9,7 @@
     "background_color": "efe",
     "icons": [
       {
-        "src": "favicon.svg",
+        "src": "logo.svg",
         "sizes": "any"
       }
     ]
