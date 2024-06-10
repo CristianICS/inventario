@@ -1,0 +1,16 @@
+{
+    "name": "ForestInventory",
+    "short_name": "FIPaF",
+    "description": "Web based and Progressive Web Application to store local forest inventories.",
+    "start_url" : "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "theme_color": "cfc",
+    "background_color": "efe",
+    "icons": [
+      {
+        "src": "icons/logo.svg",
+        "sizes": "any"
+      }
+    ]
+}
